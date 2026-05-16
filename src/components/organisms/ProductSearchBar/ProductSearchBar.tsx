@@ -1,0 +1,137 @@
+import { useState, useCallback } from 'react'
+import {
+  Autocomplete, TextField, Box, Typography, Chip,
+  InputAdornment, CircularProgress,
+} from '@mui/material'
+import SearchIcon   from '@mui/icons-material/Search'
+import CropFreeIcon from '@mui/icons-material/CropFree'
+
+import { useProductSearch } from '@/hooks/pos/useProductSearch'
+import { useBarcodeScanner } from '@/hooks/pos/useBarcodeScanner'
+import { useCartStore }      from '@/store/cartStore'
+import { notify }            from '@/store/notificationStore'
+import type { ProductSearchResult } from '@/types/database.types'
+
+interface Props {
+  disabled?: boolean
+}
+
+export function ProductSearchBar({ disabled = false }: Props) {
+  const [query,      setQuery]      = useState('')
+  const [inputValue, setInputValue] = useState('')
+  const [scanPulse,  setScanPulse]  = useState(false)
+  const addProduct = useCartStore((s) => s.addProduct)
+
+  const { data: results = [], isFetching } = useProductSearch(query)
+
+  const handleSelect = useCallback((product: ProductSearchResult | null) => {
+    if (!product) return
+    if (product.stock_available <= 0) {
+      notify.warning(`${product.product_name} is out of stock`)
+      return
+    }
+    addProduct(product)
+    setInputValue('')
+    setQuery('')
+  }, [addProduct])
+
+  const handleScan = useCallback(async (barcode: string) => {
+    setScanPulse(true)
+    setTimeout(() => setScanPulse(false), 600)
+
+    // Exact barcode lookup via RPC
+    const { supabase } = await import('@/lib/supabase')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any).rpc('get_product_by_barcode', {
+      p_barcode:   barcode,
+      p_branch_id: undefined,
+    })
+    const product = data as ProductSearchResult | null
+    if (!product) {
+      notify.warning(`Barcode not found: ${barcode}`)
+      return
+    }
+    if (product.stock_available <= 0) {
+      notify.warning(`${product.product_name} is out of stock`)
+      return
+    }
+    addProduct(product)
+  }, [addProduct])
+
+  useBarcodeScanner({ onScan: handleScan, enabled: !disabled })
+
+  return (
+    <Autocomplete<ProductSearchResult>
+      options={results}
+      loading={isFetching}
+      inputValue={inputValue}
+      onInputChange={(_, v, reason) => {
+        setInputValue(v)
+        if (reason === 'input') setQuery(v)
+      }}
+      onChange={(_, v) => handleSelect(v)}
+      getOptionLabel={(o) => o.product_name}
+      isOptionEqualToValue={(a, b) => a.product_id === b.product_id && a.unit_id === b.unit_id}
+      filterOptions={(x) => x}   // server-filtered
+      disabled={disabled}
+      fullWidth
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          placeholder="Search product or scan barcode…"
+          size="small"
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              bgcolor: scanPulse ? 'success.light' : 'background.paper',
+              transition: 'background-color 0.4s',
+            },
+          }}
+          InputProps={{
+            ...params.InputProps,
+            startAdornment: (
+              <InputAdornment position="start">
+                {scanPulse
+                  ? <CropFreeIcon fontSize="small" color="success" />
+                  : <SearchIcon   fontSize="small" color="action" />
+                }
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <>
+                {isFetching && <CircularProgress size={16} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      renderOption={(props, option) => (
+        <Box component="li" {...props} key={option.product_id + option.unit_id}>
+          <Box flex={1} minWidth={0}>
+            <Typography variant="body2" fontWeight={600} noWrap>
+              {option.product_name}
+            </Typography>
+            {option.generic_name && (
+              <Typography variant="caption" color="text.secondary" noWrap display="block">
+                {option.generic_name}
+                {option.strength ? ` — ${option.strength}` : ''}
+              </Typography>
+            )}
+          </Box>
+          <Box textAlign="right" ml={2} flexShrink={0}>
+            <Typography variant="body2" fontWeight={700} fontFamily="monospace">
+              UGX {option.selling_price.toLocaleString()}
+            </Typography>
+            <Chip
+              label={option.stock_available <= 0 ? 'Out of stock' : `Stock: ${option.stock_available}`}
+              size="small"
+              color={option.stock_available <= 0 ? 'error' : option.stock_available <= 5 ? 'warning' : 'success'}
+              variant="outlined"
+              sx={{ borderRadius: '5px', fontSize: '0.65rem', height: 18 }}
+            />
+          </Box>
+        </Box>
+      )}
+    />
+  )
+}

@@ -1,0 +1,131 @@
+import { lazy, Suspense, type ReactNode } from 'react'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { Box, CircularProgress } from '@mui/material'
+import { ProtectedRoute } from './ProtectedRoute'
+import { RoleRoute }      from './RoleRoute'
+
+// ─── Page-level code splitting ────────────────────────────────
+// Each lazy import becomes its own JS chunk. The initial bundle
+// only loads Login + shell; all other pages load on first visit.
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const page = <T extends Record<string, React.ComponentType<any>>>(
+  importFn: () => Promise<T>,
+  name: keyof T,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): React.LazyExoticComponent<React.ComponentType<any>> =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  lazy(() => importFn().then((m) => ({ default: m[name] as React.ComponentType<any> })))
+
+const LoginPage           = page(() => import('@/pages/Login/LoginPage'),                 'LoginPage')
+const ChangePasswordPage  = page(() => import('@/pages/ChangePassword/ChangePasswordPage'),'ChangePasswordPage')
+const DashboardPage       = page(() => import('@/pages/Dashboard/DashboardPage'),         'DashboardPage')
+const POSPage             = page(() => import('@/pages/POS/POSPage'),                     'POSPage')
+const CustomersPage       = page(() => import('@/pages/Customers/CustomersPage'),         'CustomersPage')
+const DeliveriesPage      = page(() => import('@/pages/Deliveries/DeliveriesPage'),       'DeliveriesPage')
+const DeliveryDetailPage  = page(() => import('@/pages/Deliveries/DeliveryDetailPage'),   'DeliveryDetailPage')
+const MySummaryPage       = page(() => import('@/pages/MySummary/MySummaryPage'),         'MySummaryPage')
+const ProductsPage        = page(() => import('@/pages/Products/ProductsPage'),           'ProductsPage')
+const ProductFormPage     = page(() => import('@/pages/Products/ProductFormPage'),        'ProductFormPage')
+const ReturnsPage         = page(() => import('@/pages/Returns/ReturnsPage'),             'ReturnsPage')
+const ReturnDetailPage    = page(() => import('@/pages/Returns/ReturnDetailPage'),        'ReturnDetailPage')
+const ReportsPage         = page(() => import('@/pages/Reports/ReportsPage'),             'ReportsPage')
+const SalesReportPage     = page(() => import('@/pages/Reports/SalesReportPage'),        'SalesReportPage')
+const StockReportPage     = page(() => import('@/pages/Reports/StockReportPage'),        'StockReportPage')
+const ExpiryReportPage    = page(() => import('@/pages/Reports/ExpiryReportPage'),       'ExpiryReportPage')
+const VatReportPage       = page(() => import('@/pages/Reports/VatReportPage'),          'VatReportPage')
+const ReconciliationPage  = page(() => import('@/pages/Reconciliation/ReconciliationPage'),      'ReconciliationPage')
+const ReconciliationDetailPage = page(() => import('@/pages/Reconciliation/ReconciliationDetailPage'), 'ReconciliationDetailPage')
+const PlaceholderPage     = page(() => import('@/pages/Placeholder/PlaceholderPage'),    'PlaceholderPage')
+
+// ─── Suspense fallback ────────────────────────────────────────
+
+function PageLoader() {
+  return (
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+      <CircularProgress />
+    </Box>
+  )
+}
+
+function S({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<PageLoader />}>{children}</Suspense>
+}
+
+// ─── Router ───────────────────────────────────────────────────
+
+export const router = createBrowserRouter([
+  // ─── Public routes ─────────────────────────────────────────
+  {
+    path: '/login',
+    element: <S><LoginPage /></S>,
+  },
+
+  // ─── Semi-protected ────────────────────────────────────────
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: '/change-password',
+        element: <S><ChangePasswordPage /></S>,
+      },
+    ],
+  },
+
+  // ─── Fully protected ───────────────────────────────────────
+  {
+    element: <ProtectedRoute />,
+    children: [
+      // All roles
+      {
+        element: <RoleRoute allowedRoles={['admin', 'manager', 'teller']} />,
+        children: [
+          { path: '/dashboard',            element: <S><DashboardPage /></S>      },
+          { path: '/pos',                  element: <S><POSPage /></S>            },
+          { path: '/customers',            element: <S><CustomersPage /></S>      },
+          { path: '/delivery-orders',      element: <S><DeliveriesPage /></S>     },
+          { path: '/delivery-orders/:id',  element: <S><DeliveryDetailPage /></S> },
+          { path: '/my-summary',           element: <S><MySummaryPage /></S>      },
+        ],
+      },
+
+      // Admin + Manager only
+      {
+        element: <RoleRoute allowedRoles={['admin', 'manager']} />,
+        children: [
+          { path: '/products',     element: <S><ProductsPage /></S>    },
+          { path: '/products/new', element: <S><ProductFormPage /></S> },
+          { path: '/products/:id', element: <S><ProductFormPage /></S> },
+          { path: '/inventory',                 element: <S><PlaceholderPage title="Inventory"           phase={3} /></S> },
+          { path: '/inventory/batches',         element: <S><PlaceholderPage title="Stock Batches"       phase={3} /></S> },
+          { path: '/inventory/adjustments',     element: <S><PlaceholderPage title="Stock Adjustments"   phase={3} /></S> },
+          { path: '/inventory/stock-takes',     element: <S><PlaceholderPage title="Stock Takes"         phase={3} /></S> },
+          { path: '/inventory/purchase-orders', element: <S><PlaceholderPage title="Purchase Orders"     phase={3} /></S> },
+          { path: '/inventory/receive',         element: <S><PlaceholderPage title="Receive Stock"       phase={3} /></S> },
+          { path: '/returns',          element: <S><ReturnsPage /></S>              },
+          { path: '/returns/:id',      element: <S><ReturnDetailPage /></S>        },
+          { path: '/reports',          element: <S><ReportsPage /></S>             },
+          { path: '/reports/sales',    element: <S><SalesReportPage /></S>        },
+          { path: '/reports/stock',    element: <S><StockReportPage /></S>        },
+          { path: '/reports/expiry',   element: <S><ExpiryReportPage /></S>       },
+          { path: '/reports/vat',      element: <S><VatReportPage /></S>          },
+          { path: '/reports/reconciliation',      element: <S><ReconciliationPage /></S>       },
+          { path: '/reports/reconciliation/:id',  element: <S><ReconciliationDetailPage /></S> },
+        ],
+      },
+
+      // Admin only
+      {
+        element: <RoleRoute allowedRoles={['admin']} />,
+        children: [
+          { path: '/users',    element: <S><PlaceholderPage title="User Management" phase={1} description="Admin-only user creation, role management, and credential emails." /></S> },
+          { path: '/settings', element: <S><PlaceholderPage title="Settings"        phase={1} description="Branch settings, VAT configuration, EFRIS setup." /></S>               },
+        ],
+      },
+    ],
+  },
+
+  // ─── Fallback ───────────────────────────────────────────────
+  { path: '/',  element: <Navigate to="/dashboard" replace /> },
+  { path: '*',  element: <Navigate to="/dashboard" replace /> },
+])
