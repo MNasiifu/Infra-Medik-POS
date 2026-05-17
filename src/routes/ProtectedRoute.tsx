@@ -6,8 +6,6 @@ export function ProtectedRoute() {
   const { isAuthenticated, isInitialized, mustChangePassword } = useAuth()
   const location = useLocation()
 
-  console.log('::debug isInitialized:', isInitialized);
-
   // Still bootstrapping session from localStorage
   if (!isInitialized) {
     return (

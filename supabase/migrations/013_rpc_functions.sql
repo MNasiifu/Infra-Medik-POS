@@ -459,6 +459,9 @@ declare
   v_receiving_id uuid;
   v_item         jsonb;
   v_batch_id     uuid;
+  v_expiry_date  date;
+  v_stock_in_date date;
+  v_po_order_date date;
 begin
   if not is_admin_or_manager() then
     raise exception 'Permission denied';
@@ -477,11 +480,35 @@ begin
 
   -- Process each line item
   for v_item in select * from jsonb_array_elements(p_data->'items') loop
+    v_expiry_date := nullif(v_item->>'expiry_date', '')::date;
+    v_stock_in_date := nullif(v_item->>'stock_in_date', '')::date;
+
+    -- Validation: stock_in_date is required
+    if v_stock_in_date is null then
+      raise exception 'stock_in_date is required for all receiving items';
+    end if;
+
+    -- Validation: stock_in_date must be <= expiry_date (if expiry exists)
+    if v_expiry_date is not null and v_stock_in_date > v_expiry_date then
+      raise exception 'Stock in date cannot be after expiry date';
+    end if;
+
+    -- Validation: if linked to PO, stock_in_date must be >= PO order_date
+    if (v_item->>'purchase_order_item_id') is not null then
+      select po.order_date into v_po_order_date
+      from purchase_order_items poi
+      join purchase_orders po on poi.purchase_order_id = po.id
+      where poi.id = (v_item->>'purchase_order_item_id')::uuid;
+
+      if v_po_order_date is not null and v_stock_in_date < v_po_order_date then
+        raise exception 'Stock in date cannot be before purchase order date';
+      end if;
+    end if;
 
     -- Insert receiving item record
     insert into stock_receiving_items (
       receiving_id, product_id, product_unit_id,
-      purchase_order_item_id, batch_number, expiry_date,
+      purchase_order_item_id, batch_number, expiry_date, stock_in_date,
       quantity_received, cost_price_per_unit
     ) values (
       v_receiving_id,
@@ -489,7 +516,8 @@ begin
       (v_item->>'product_unit_id')::uuid,
       nullif(v_item->>'purchase_order_item_id', '')::uuid,
       v_item->>'batch_number',
-      nullif(v_item->>'expiry_date', '')::date,
+      v_expiry_date,
+      v_stock_in_date,
       (v_item->>'quantity_received')::numeric,
       (v_item->>'cost_price_per_unit')::numeric
     );
@@ -497,7 +525,7 @@ begin
     -- Create stock batch (FEFO-tracked)
     insert into stock_batches (
       product_id, product_unit_id, branch_id, supplier_id,
-      batch_number, expiry_date,
+      batch_number, expiry_date, stock_in_date,
       quantity_received, quantity_remaining,
       cost_price_per_unit, receiving_id
     ) values (
@@ -506,7 +534,8 @@ begin
       (p_data->>'branch_id')::uuid,
       nullif(p_data->>'supplier_id', '')::uuid,
       v_item->>'batch_number',
-      nullif(v_item->>'expiry_date', '')::date,
+      v_expiry_date,
+      v_stock_in_date,
       (v_item->>'quantity_received')::numeric,
       (v_item->>'quantity_received')::numeric,
       (v_item->>'cost_price_per_unit')::numeric,

@@ -135,13 +135,13 @@ const NAV: NavItem[] = [
     icon: <PeopleIcon />,
     roles: ["admin", "manager", "teller"],
   },
-  {
-    id: "deliveries",
-    label: "Delivery Orders",
-    path: "/delivery-orders",
-    icon: <DeliveryDiningIcon />,
-    roles: ["admin", "manager", "teller"],
-  },
+  // {
+  //   id: "deliveries",
+  //   label: "Delivery Orders",
+  //   path: "/delivery-orders",
+  //   icon: <DeliveryDiningIcon />,
+  //   roles: ["admin", "manager", "teller"],
+  // },
   {
     id: "returns",
     label: "Returns",

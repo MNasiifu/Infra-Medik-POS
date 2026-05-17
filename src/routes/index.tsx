@@ -37,7 +37,15 @@ const ExpiryReportPage    = page(() => import('@/pages/Reports/ExpiryReportPage'
 const VatReportPage       = page(() => import('@/pages/Reports/VatReportPage'),          'VatReportPage')
 const ReconciliationPage  = page(() => import('@/pages/Reconciliation/ReconciliationPage'),      'ReconciliationPage')
 const ReconciliationDetailPage = page(() => import('@/pages/Reconciliation/ReconciliationDetailPage'), 'ReconciliationDetailPage')
-const PlaceholderPage     = page(() => import('@/pages/Placeholder/PlaceholderPage'),    'PlaceholderPage')
+const InventoryOverviewPage    = page(() => import('@/pages/Inventory/InventoryOverviewPage'),    'InventoryOverviewPage')
+const StockBatchesPage         = page(() => import('@/pages/Inventory/StockBatchesPage'),         'StockBatchesPage')
+const StockAdjustmentsPage     = page(() => import('@/pages/Inventory/StockAdjustmentsPage'),     'StockAdjustmentsPage')
+const StockTakesPage           = page(() => import('@/pages/Inventory/StockTakesPage'),           'StockTakesPage')
+const StockTakeDetailPage      = page(() => import('@/pages/Inventory/StockTakeDetailPage'),      'StockTakeDetailPage')
+const PurchaseOrdersPage       = page(() => import('@/pages/Inventory/PurchaseOrdersPage'),       'PurchaseOrdersPage')
+const PurchaseOrderDetailPage  = page(() => import('@/pages/Inventory/PurchaseOrderDetailPage'),  'PurchaseOrderDetailPage')
+const ReceiveStockPage         = page(() => import('@/pages/Inventory/ReceiveStockPage'),         'ReceiveStockPage')
+const PlaceholderPage          = page(() => import('@/pages/Placeholder/PlaceholderPage'),        'PlaceholderPage')
 
 // ─── Suspense fallback ────────────────────────────────────────
 
@@ -98,12 +106,14 @@ export const router = createBrowserRouter([
           { path: '/products/new',      element: <S><ProductFormPage /></S>    },
           { path: '/products/:id',      element: <S><ProductDetailPage /></S>  },
           { path: '/products/:id/edit', element: <S><ProductFormPage /></S>    },
-          { path: '/inventory',                 element: <S><PlaceholderPage title="Inventory"           phase={3} /></S> },
-          { path: '/inventory/batches',         element: <S><PlaceholderPage title="Stock Batches"       phase={3} /></S> },
-          { path: '/inventory/adjustments',     element: <S><PlaceholderPage title="Stock Adjustments"   phase={3} /></S> },
-          { path: '/inventory/stock-takes',     element: <S><PlaceholderPage title="Stock Takes"         phase={3} /></S> },
-          { path: '/inventory/purchase-orders', element: <S><PlaceholderPage title="Purchase Orders"     phase={3} /></S> },
-          { path: '/inventory/receive',         element: <S><PlaceholderPage title="Receive Stock"       phase={3} /></S> },
+          { path: '/inventory',                 element: <S><InventoryOverviewPage /></S> },
+          { path: '/inventory/batches',         element: <S><StockBatchesPage /></S>     },
+          { path: '/inventory/adjustments',     element: <S><StockAdjustmentsPage /></S> },
+          { path: '/inventory/stock-takes',          element: <S><StockTakesPage /></S>          },
+          { path: '/inventory/stock-takes/:id',      element: <S><StockTakeDetailPage /></S>     },
+          { path: '/inventory/purchase-orders',      element: <S><PurchaseOrdersPage /></S>      },
+          { path: '/inventory/purchase-orders/:id',  element: <S><PurchaseOrderDetailPage /></S> },
+          { path: '/inventory/receive',              element: <S><ReceiveStockPage /></S>        },
           { path: '/returns',          element: <S><ReturnsPage /></S>              },
           { path: '/returns/:id',      element: <S><ReturnDetailPage /></S>        },
           { path: '/reports',          element: <S><ReportsPage /></S>             },
