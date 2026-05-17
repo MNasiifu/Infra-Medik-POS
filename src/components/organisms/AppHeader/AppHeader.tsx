@@ -63,7 +63,9 @@ export function AppHeader({ onMenuClick, sidebarWidth }: Props) {
         width: { md: `calc(100% - ${sidebarWidth}px)` },
         ml:    { md: `${sidebarWidth}px` },
         bgcolor: 'background.paper',
+        borderRadius: 0,
         color:   'text.primary',
+        borderLeft: `1px solid ${theme.palette.divider}`,
         borderBottom: `1px solid ${theme.palette.divider}`,
         transition: theme.transitions.create(['width', 'margin'], {
           easing: theme.transitions.easing.sharp,

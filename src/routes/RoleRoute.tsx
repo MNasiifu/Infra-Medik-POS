@@ -2,14 +2,23 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { Box, Typography, Button } from '@mui/material'
 import LockIcon from '@mui/icons-material/Lock'
 import { usePermissions } from '@/hooks/auth/usePermissions'
-import type { UserRole } from '@/types/database.types'
+import { useAuthStore }   from '@/store/authStore'
+import type { UserRole }  from '@/types/database.types'
 
 interface Props {
   allowedRoles: UserRole[]
 }
 
 export function RoleRoute({ allowedRoles }: Props) {
-  const { role } = usePermissions()
+  const isInitialized = useAuthStore((s) => s.isInitialized)
+  const { role }      = usePermissions()
+
+  /**
+   * Auth is still bootstrapping — ProtectedRoute above us already shows the
+   * full-screen spinner, so we simply render nothing here. Without this guard,
+   * `role` would be null during init and we'd redirect to /login too early.
+   */
+  if (!isInitialized) return null
 
   if (!role) return <Navigate to="/login" replace />
 

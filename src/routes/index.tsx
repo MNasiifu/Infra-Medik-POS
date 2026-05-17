@@ -26,6 +26,7 @@ const DeliveriesPage      = page(() => import('@/pages/Deliveries/DeliveriesPage
 const DeliveryDetailPage  = page(() => import('@/pages/Deliveries/DeliveryDetailPage'),   'DeliveryDetailPage')
 const MySummaryPage       = page(() => import('@/pages/MySummary/MySummaryPage'),         'MySummaryPage')
 const ProductsPage        = page(() => import('@/pages/Products/ProductsPage'),           'ProductsPage')
+const ProductDetailPage   = page(() => import('@/pages/Products/ProductDetailPage'),      'ProductDetailPage')
 const ProductFormPage     = page(() => import('@/pages/Products/ProductFormPage'),        'ProductFormPage')
 const ReturnsPage         = page(() => import('@/pages/Returns/ReturnsPage'),             'ReturnsPage')
 const ReturnDetailPage    = page(() => import('@/pages/Returns/ReturnDetailPage'),        'ReturnDetailPage')
@@ -93,9 +94,10 @@ export const router = createBrowserRouter([
       {
         element: <RoleRoute allowedRoles={['admin', 'manager']} />,
         children: [
-          { path: '/products',     element: <S><ProductsPage /></S>    },
-          { path: '/products/new', element: <S><ProductFormPage /></S> },
-          { path: '/products/:id', element: <S><ProductFormPage /></S> },
+          { path: '/products',          element: <S><ProductsPage /></S>       },
+          { path: '/products/new',      element: <S><ProductFormPage /></S>    },
+          { path: '/products/:id',      element: <S><ProductDetailPage /></S>  },
+          { path: '/products/:id/edit', element: <S><ProductFormPage /></S>    },
           { path: '/inventory',                 element: <S><PlaceholderPage title="Inventory"           phase={3} /></S> },
           { path: '/inventory/batches',         element: <S><PlaceholderPage title="Stock Batches"       phase={3} /></S> },
           { path: '/inventory/adjustments',     element: <S><PlaceholderPage title="Stock Adjustments"   phase={3} /></S> },

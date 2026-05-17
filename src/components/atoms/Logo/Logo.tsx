@@ -1,10 +1,13 @@
 import { Box, Typography } from "@mui/material";
 import logoSrc from "@/assets/images/logo.png";
+import FaviconImage from "@/assets/images/favicon.png";
 
 interface LogoProps {
   collapsed?: boolean;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "white";
+  height?: number;
+  showText?: boolean;
 }
 
 const sizes = {
@@ -17,6 +20,8 @@ export function Logo({
   collapsed = false,
   size = "md",
   variant = "default",
+  height,
+  showText = true
 }: LogoProps) {
   const s = sizes[size];
   const textColor = variant === "white" ? "#ffffff" : "text.primary";
@@ -38,10 +43,10 @@ export function Logo({
       >
         <Box
           component="img"
-          src={logoSrc}
+          src={collapsed ? FaviconImage : logoSrc}
           alt="INFRA MEDIK"
           sx={{
-            height: {xs: 50, sm: 100, md: 100},
+            height: height ?? {xs: 50, sm: 100, md: 100},
             width: "auto",
             objectFit: "contain",
             flexShrink: 0,
@@ -53,7 +58,7 @@ export function Logo({
         />
       </Box>
 
-      {!collapsed && (
+      {!collapsed && showText && (
         <Box>
           <Typography
             variant={s.title}

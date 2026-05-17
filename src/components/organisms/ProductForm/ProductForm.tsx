@@ -20,7 +20,7 @@ import {
   DOSAGE_FORMS,
   type CreateProductFormValues, type ProductFormValues,
 } from '@/lib/zod-schemas/product.schemas'
-import { useCreateProduct, useUpdateProduct } from '@/hooks/products/useProductMutations'
+import { useCreateProduct, useUpdateProduct, useUpdateProductUnit } from '@/hooks/products/useProductMutations'
 import { useCategories, useManufacturers, useCountries, useSuppliers } from '@/hooks/shared/useReferenceData'
 import { useVatRate } from '@/hooks/shared/useVatRate'
 import { ProductUnitManager } from '@/components/organisms/ProductUnitManager/ProductUnitManager'
@@ -491,7 +491,7 @@ function CreateProductFields({
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
         <Controller name="product.strength" control={control} render={({ field }) => (
-          <TextField {...field} value={field.value ?? ''} label="Strength" size="small" fullWidth
+          <TextField {...field} value={field.value ?? ''} label="Capacity" size="small" fullWidth
             helperText="e.g. 500mg, 10mg/5ml" />
         )} />
       </Grid>
@@ -556,6 +556,8 @@ function CreateProductFields({
 function EditProductForm({ product }: { product: ProductWithDetails }) {
   const navigate    = useNavigate()
   const updateProd  = useUpdateProduct()
+  const updateUnit  = useUpdateProductUnit()
+  const vatRate     = useVatRate()
   const [tab, setTab] = useState(0)
 
   const {
@@ -580,6 +582,18 @@ function EditProductForm({ product }: { product: ProductWithDetails }) {
 
   const onSubmit = async (values: ProductFormValues) => {
     await updateProd.mutateAsync({ id: product.id, data: values })
+
+    const vatChanged = values.is_vat_exempt !== product.is_vat_exempt
+    if (vatChanged) {
+      await Promise.all(
+        product.product_units.map((u) => {
+          const newVat = values.is_vat_exempt
+            ? 0
+            : Math.round(u.price_before_vat * (vatRate / 100))
+          return updateUnit.mutateAsync({ unitId: u.id, data: { vat_amount: newVat } })
+        }),
+      )
+    }
   }
 
   const { data: categories    = [] } = useCategories()
@@ -638,7 +652,7 @@ function EditProductForm({ product }: { product: ProductWithDetails }) {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <Controller name="strength" control={control} render={({ field }) => (
-              <TextField {...field} value={field.value ?? ''} label="Strength" size="small" fullWidth
+              <TextField {...field} value={field.value ?? ''} label="Capacity" size="small" fullWidth
                 helperText="e.g. 500mg, 10mg/5ml" />
             )} />
           </Grid>
@@ -698,7 +712,7 @@ function EditProductForm({ product }: { product: ProductWithDetails }) {
 
         <Divider sx={{ my: 3 }} />
         <Stack direction="row" justifyContent="flex-end" spacing={1.5}>
-          <Button variant="outlined" onClick={() => navigate('/products')} disabled={isSubmitting}>
+          <Button variant="outlined" onClick={() => navigate(`/products/${product.id}`)} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button variant="contained" type="submit" disabled={isSubmitting}>
@@ -712,7 +726,7 @@ function EditProductForm({ product }: { product: ProductWithDetails }) {
         <ProductUnitManager
           productId={product.id}
           units={product.product_units}
-          isVatExempt={product.is_vat_exempt}
+          isVatExempt={isVatExempt ?? false}
         />
       </TabPanel>
 
@@ -740,8 +754,8 @@ export function ProductForm({ product }: Props) {
   return (
     <Box>
       <Box display="flex" alignItems="center" gap={1.5} mb={3}>
-        <Tooltip title="Back to products" arrow>
-          <IconButton size="small" onClick={() => navigate('/products')}>
+        <Tooltip title={product ? 'Back to product details' : 'Back to products'} arrow>
+          <IconButton size="small" onClick={() => navigate(product ? `/products/${product.id}` : '/products')}>
             <ArrowBackIcon />
           </IconButton>
         </Tooltip>

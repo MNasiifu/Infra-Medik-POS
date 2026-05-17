@@ -12,7 +12,7 @@ export function NotificationManager() {
           open
           autoHideDuration={n.duration ?? 4000}
           onClose={() => remove(n.id)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           sx={{ bottom: { xs: 16 + idx * 64, sm: 24 + idx * 72 } }}
         >
           <Alert

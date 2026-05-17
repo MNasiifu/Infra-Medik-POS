@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Box, Button, Table, TableHead, TableRow, TableCell, TableBody,
   IconButton, Tooltip, Typography, Dialog, DialogTitle,
@@ -42,10 +42,16 @@ function UnitDialog({
   const addUnit    = useAddProductUnit()
   const updateUnit = useUpdateProductUnit()
 
-  const { control, handleSubmit, watch, setValue, formState: { isSubmitting, errors } } =
+  const { control, handleSubmit, watch, setValue, reset, formState: { isSubmitting, errors } } =
     useForm<ProductUnitFormValues>({
       resolver: zodResolver(productUnitSchema),
-      defaultValues: existing
+      defaultValues: { unit_name: 'Piece', conversion_factor: 1, price_before_vat: 0, vat_amount: 0, cost_price: 0, is_default: false },
+    })
+
+  useEffect(() => {
+    if (!open) return
+    reset(
+      existing
         ? {
             unit_name:         existing.unit_name,
             conversion_factor: existing.conversion_factor,
@@ -55,7 +61,8 @@ function UnitDialog({
             is_default:        existing.is_default,
           }
         : { unit_name: 'Piece', conversion_factor: 1, price_before_vat: 0, vat_amount: 0, cost_price: 0, is_default: false },
-    })
+    )
+  }, [open, existing, reset])
 
   const priceBeforeVat = watch('price_before_vat')
   const vatAmount      = isVatExempt ? 0 : Math.round(priceBeforeVat * (vatRate / 100))

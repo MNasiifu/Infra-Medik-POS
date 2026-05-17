@@ -34,7 +34,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   setProfile: (profile) => set({ profile }),
   setLoading: (isLoading) => set({ isLoading }),
   setInitialized: (isInitialized) => set({ isInitialized }),
-  clearAuth: () => set({ session: null, user: null, profile: null }),
+  clearAuth: () => {
+    set({ session: null, user: null, profile: null });
+    localStorage.removeItem('infra-medik-auth');
+  },
 
   isAuthenticated: () => get().session !== null && get().user !== null,
   mustChangePassword: () => get().profile?.must_change_password ?? false,

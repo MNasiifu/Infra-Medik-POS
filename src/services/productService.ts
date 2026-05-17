@@ -49,7 +49,7 @@ export const productService = {
       .is('deleted_at', null)
       .order('name')
 
-    if (!filters.showInactive) query = query.eq('is_active', true)
+    if (filters.showInactive === false) query = query.eq('is_active', true)
     if (filters.categoryId)    query = query.eq('category_id', filters.categoryId)
     if (filters.manufacturerId) query = query.eq('manufacturer_id', filters.manufacturerId)
     if (filters.dosageForm)    query = query.eq('dosage_form', filters.dosageForm)

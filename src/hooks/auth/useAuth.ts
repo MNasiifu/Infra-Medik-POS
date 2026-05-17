@@ -1,13 +1,22 @@
-import { useEffect, useCallback } from 'react'
+/**
+ * useAuth
+ *
+ * Provides auth state reads and action callbacks (signIn, signOut, changePassword).
+ *
+ * The session bootstrap has been moved to useAuthBootstrap (called once in App.tsx).
+ * This hook is now a pure store reader + action dispatcher — no side-effects, no
+ * risk of tearing down the auth listener when a route transition unmounts a guard.
+ */
+import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
-import { useAuthStore } from '@/store/authStore'
+import { supabase }      from '@/lib/supabase'
+import { useAuthStore }  from '@/store/authStore'
+import { queryClient }   from '@/lib/queryClient'
+import { notify }        from '@/store/notificationStore'
+import type { Profile }  from '@/types/database.types'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any
-import { queryClient } from '@/lib/queryClient'
-import { notify } from '@/store/notificationStore'
-import type { Profile } from '@/types/database.types'
 
 async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
@@ -23,85 +32,46 @@ export function useAuth() {
   const {
     session, user, profile,
     isLoading, isInitialized,
-    setSession, setProfile, setLoading, setInitialized, clearAuth,
+    setSession, setProfile, setLoading, clearAuth,
     isAuthenticated, mustChangePassword, role, branchId, fullName,
   } = useAuthStore()
 
-  // Bootstrap: check existing session on mount
-  useEffect(() => {
-    let mounted = true
+  const navigate = useNavigate()
 
-    const init = async () => {
-      setLoading(true)
-      const { data: { session } } = await supabase.auth.getSession()
-
-      if (session && mounted) {
-        const p = await fetchProfile(session.user.id)
-        setSession(session, session.user)
-        setProfile(p)
-      }
-
-      if (mounted) {
-        setLoading(false)
-        setInitialized(true)
-      }
-    }
-
-    init()
-
-    // Listen for auth state changes (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return
-
-        if (event === 'SIGNED_IN' && session) {
-          setLoading(true)
-          const p = await fetchProfile(session.user.id)
-          setSession(session, session.user)
-          setProfile(p)
-          setLoading(false)
-        } else if (event === 'SIGNED_OUT') {
-          clearAuth()
-          queryClient.clear()
-          setLoading(false)
-        } else if (event === 'TOKEN_REFRESHED' && session) {
-          setSession(session, session.user)
-        }
-      }
-    )
-
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  // ── Actions ────────────────────────────────────────────────────────────────
 
   const signIn = useCallback(async (email: string, password: string) => {
     setLoading(true)
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw new Error(error.message)
+      const p = await fetchProfile(data.user.id)
+      setSession(data.session, data.user)
+      setProfile(p)
+      return p
+    } finally {
       setLoading(false)
-      throw new Error(error.message)
     }
-    const p = await fetchProfile(data.user.id)
-    setSession(data.session, data.user)
-    setProfile(p)
-    setLoading(false)
-    return p
   }, [setLoading, setSession, setProfile])
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut()
-    clearAuth()
-    queryClient.clear()
-    notify.info('You have been signed out.')
-  }, [clearAuth])
+    try {
+      await supabase.auth.signOut()
+      clearAuth()
+      queryClient.clear()
+      notify.info('You have been signed out.')
+      navigate('/login', { replace: true })
+    } catch (error) {
+      console.error('Sign out error:', error)
+      const msg = error instanceof Error ? error.message : 'Sign out failed'
+      notify.error(msg)
+    }
+  }, [clearAuth, navigate])
 
   const changePassword = useCallback(async (newPassword: string) => {
     const { error } = await supabase.auth.updateUser({ password: newPassword })
     if (error) throw new Error(error.message)
 
-    // Clear the must_change_password flag
     const { error: profileError } = await db
       .from('profiles')
       .update({ must_change_password: false })
@@ -113,17 +83,19 @@ export function useAuth() {
     notify.success('Password changed successfully.')
   }, [user, profile, setProfile])
 
+  // ── Return ─────────────────────────────────────────────────────────────────
+
   return {
     session,
     user,
     profile,
     isLoading,
     isInitialized,
-    isAuthenticated: isAuthenticated(),
+    isAuthenticated:    isAuthenticated(),
     mustChangePassword: mustChangePassword(),
-    role: role(),
-    branchId: branchId(),
-    fullName: fullName(),
+    role:               role(),
+    branchId:           branchId(),
+    fullName:           fullName(),
     signIn,
     signOut,
     changePassword,
@@ -135,14 +107,7 @@ export function useRequireAuth() {
   const navigate = useNavigate()
   const { isAuthenticated, isInitialized, mustChangePassword } = useAuth()
 
-  useEffect(() => {
-    if (!isInitialized) return
-    if (!isAuthenticated) {
-      navigate('/login', { replace: true })
-    } else if (mustChangePassword) {
-      navigate('/change-password', { replace: true })
-    }
-  }, [isAuthenticated, isInitialized, mustChangePassword, navigate])
-
-  return { isAuthenticated, isInitialized }
+  // No useEffect needed — ProtectedRoute already handles the redirect.
+  // This hook is kept for components that optionally want to know auth state.
+  return { isAuthenticated, isInitialized, mustChangePassword, navigate }
 }
