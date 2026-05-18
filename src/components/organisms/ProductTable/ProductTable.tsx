@@ -21,11 +21,8 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
-import {
-  DataGrid,
-  type GridColDef,
-  type GridRenderCellParams,
-} from "@mui/x-data-grid";
+import { type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid";
+import { AppDataGrid } from "@/components/molecules/AppDataGrid";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
@@ -548,88 +545,11 @@ export function ProductTable() {
       )}
 
       {/* Data grid */}
-      <DataGrid
+      <AppDataGrid
         rows={products}
         columns={columns}
         loading={isLoading}
-        autoHeight
-        density="comfortable"
-        disableRowSelectionOnClick
         onRowClick={({ row }) => navigate(`/products/${row.id}`)}
-        pageSizeOptions={[25, 50, 100]}
-        initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
-        sx={{
-          border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 2,
-
-          "& .MuiDataGrid-row": {
-            cursor: "pointer",
-            borderBottom: "1px solid",
-            borderColor: "divider",
-          },
-
-          "& .MuiDataGrid-cell": {
-            alignItems: "center",
-            borderBottom: "none",
-            display: "flex",
-            alignContent: "center",
-          },
-
-          "& .MuiDataGrid-columnHeaders": {
-            borderBottom: "1px solid",
-            borderColor: "divider",
-          },
-
-          "& .MuiDataGrid-columnSeparator": {
-            visibility: "visible",
-            color: "divider",
-            "& svg": {
-              color: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.2)"
-                  : "rgba(0,0,0,0.18)",
-            },
-          },
-          "& .MuiDataGrid-columnSeparator:hover svg": {
-            color: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.5)"
-                : "rgba(0,0,0,0.45)",
-          },
-
-          backgroundColor: "background.paper",
-
-          "& .MuiDataGrid-columnHeader": {
-            backgroundColor: "background.paper",
-          },
-
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "1px solid",
-            borderColor: "divider",
-            backgroundColor: "background.paper",
-          },
-
-          "& .MuiDataGrid-row:hover": {
-            backgroundColor: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.04)"
-                : "rgba(0,0,0,0.03)",
-          },
-
-          "& .MuiDataGrid-row.Mui-selected": {
-            backgroundColor: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.08)"
-                : "rgba(0,0,0,0.06)",
-            "&:hover": {
-              backgroundColor: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.10)"
-                  : "rgba(0,0,0,0.08)",
-            },
-          },
-        }}
       />
 
       {/* ── Confirmation modals ──────────────────────────────────

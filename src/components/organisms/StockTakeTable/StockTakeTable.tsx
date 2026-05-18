@@ -4,7 +4,8 @@ import {
   Box, Button, Chip, Dialog, DialogTitle, DialogContent, DialogActions,
   IconButton, TextField, Tooltip, Typography, Stack,
 } from '@mui/material'
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import AddIcon        from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import DeleteIcon     from '@mui/icons-material/Delete'
@@ -126,23 +127,15 @@ export function StockTakeTable() {
         </Button>
       </Box>
 
-      <DataGrid
+      <AppDataGrid
         rows={stockTakes}
         columns={columns}
         loading={isLoading}
-        autoHeight
-        density="comfortable"
-        disableRowSelectionOnClick
         onRowClick={({ row }) => navigate(`/inventory/stock-takes/${row.id}`)}
         pageSizeOptions={[25, 50]}
         initialState={{
           pagination: { paginationModel: { pageSize: 25 } },
           sorting:    { sortModel: [{ field: 'started_at', sort: 'desc' }] },
-        }}
-        sx={{
-          border: '1px solid', borderColor: 'divider', borderRadius: 2,
-          '& .MuiDataGrid-row': { cursor: 'pointer' },
-          backgroundColor: 'background.paper',
         }}
       />
 

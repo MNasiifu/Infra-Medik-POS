@@ -4,7 +4,8 @@ import {
   Box, Button, Chip, Dialog, DialogContent, DialogTitle,
   IconButton, Tooltip, Typography,
 } from '@mui/material'
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import AddIcon        from '@mui/icons-material/Add'
 import CloseIcon      from '@mui/icons-material/Close'
 import VisibilityIcon from '@mui/icons-material/Visibility'
@@ -35,37 +36,127 @@ export function ReconciliationPage() {
 
   const { data: records = [], isLoading } = useReconciliations()
 
+  // const columns: GridColDef<DailyReconciliation>[] = useMemo(() => [
+  //   {
+  //     field: 'reconciliation_date', headerName: 'Date', width: 250,
+  //     renderCell: ({ value }: GridRenderCellParams) => (
+  //       <Typography variant="body2" fontWeight={600}>{formatDate(value as string)}</Typography>
+  //     ),
+  //   },
+  //   {
+  //     field: 'status', headerName: 'Status', width: 200,
+  //     renderCell: ({ value }: GridRenderCellParams) => {
+  //       const cfg = STATUS_CONFIG[value as ReconciliationStatus] ?? { label: value, color: 'default' }
+  //       return (
+  //         <Chip label={cfg.label} size="small" color={cfg.color} variant="filled"
+  //           sx={{ borderRadius: '6px', fontSize: '0.7rem' }} />
+  //       )
+  //     },
+  //   },
+  //   {
+  //     field: 'total_expected', headerName: 'Expected', width: 150, align: 'right', headerAlign: 'right',
+  //     renderCell: ({ value }: GridRenderCellParams) => (
+  //       <Typography variant="body2" fontFamily="monospace">{formatUGX(value as number)}</Typography>
+  //     ),
+  //   },
+  //   {
+  //     field: 'total_actual', headerName: 'Actual', width: 150, align: 'right', headerAlign: 'right',
+  //     renderCell: ({ value }: GridRenderCellParams) => (
+  //       <Typography variant="body2" fontFamily="monospace" fontWeight={600}>{formatUGX(value as number)}</Typography>
+  //     ),
+  //   },
+  //   {
+  //     field: 'total_variance', headerName: 'Variance', width: 150, align: 'right', headerAlign: 'right',
+  //     renderCell: ({ value }: GridRenderCellParams) => {
+  //       const v = value as number
+  //       return (
+  //         <Typography variant="body2" fontFamily="monospace" fontWeight={700} color={varianceColor(v)}>
+  //           {v >= 0 ? '+' : ''}{formatUGX(v)}
+  //         </Typography>
+  //       )
+  //     },
+  //   },
+  //   {
+  //     field: 'actions', headerName: '', width: 100, sortable: false,
+  //     renderCell: ({ row }: GridRenderCellParams<DailyReconciliation>) => (
+  //       <Tooltip title="View details" arrow>
+  //         <IconButton size="small"
+  //           onClick={(e) => { e.stopPropagation(); navigate(`/reports/reconciliation/${row.id}`) }}>
+  //           <VisibilityIcon fontSize="small" />
+  //         </IconButton>
+  //       </Tooltip>
+  //     ),
+  //   },
+  // ], [navigate])
+
   const columns: GridColDef<DailyReconciliation>[] = useMemo(() => [
     {
-      field: 'reconciliation_date', headerName: 'Date', width: 140,
+      field: 'reconciliation_date',
+      headerName: 'Date',
+      // ── CHANGED: replaced fixed `width: 250` with `flex: 2` so this
+      //    column takes proportionally more space (it's the primary label).
+      flex: 2,
+      minWidth: 160,
+      align: 'center',
+      headerAlign: 'center',
       renderCell: ({ value }: GridRenderCellParams) => (
         <Typography variant="body2" fontWeight={600}>{formatDate(value as string)}</Typography>
       ),
     },
     {
-      field: 'status', headerName: 'Status', width: 120,
+      field: 'status',
+      headerName: 'Status',
+      // ── CHANGED: was `width: 200`, now proportional flex column.
+      flex: 1.5,
+      minWidth: 120,
+      align: 'center',
+      headerAlign: 'center',
       renderCell: ({ value }: GridRenderCellParams) => {
         const cfg = STATUS_CONFIG[value as ReconciliationStatus] ?? { label: value, color: 'default' }
         return (
-          <Chip label={cfg.label} size="small" color={cfg.color} variant="filled"
-            sx={{ borderRadius: '6px', fontSize: '0.7rem' }} />
+          <Chip
+            label={cfg.label}
+            size="small"
+            color={cfg.color}
+            variant="filled"
+            sx={{ borderRadius: '6px', fontSize: '0.7rem' }}
+          />
         )
       },
     },
     {
-      field: 'total_expected', headerName: 'Expected', width: 150, align: 'right', headerAlign: 'right',
+      field: 'total_expected',
+      headerName: 'Expected',
+      // ── CHANGED: was `width: 150`. Numeric columns get equal flex so
+      //    the three money columns align symmetrically.
+      flex: 1.5,
+      minWidth: 130,
+      align: 'center',
+      headerAlign: 'center',
       renderCell: ({ value }: GridRenderCellParams) => (
         <Typography variant="body2" fontFamily="monospace">{formatUGX(value as number)}</Typography>
       ),
     },
     {
-      field: 'total_actual', headerName: 'Actual', width: 150, align: 'right', headerAlign: 'right',
+      field: 'total_actual',
+      headerName: 'Actual',
+      // ── CHANGED: was `width: 150`.
+      flex: 1.5,
+      minWidth: 130,
+      align: 'center',
+      headerAlign: 'center',
       renderCell: ({ value }: GridRenderCellParams) => (
         <Typography variant="body2" fontFamily="monospace" fontWeight={600}>{formatUGX(value as number)}</Typography>
       ),
     },
     {
-      field: 'total_variance', headerName: 'Variance', width: 150, align: 'right', headerAlign: 'right',
+      field: 'total_variance',
+      headerName: 'Variance',
+      // ── CHANGED: was `width: 150`.
+      flex: 1.5,
+      minWidth: 130,
+      align: 'center',
+      headerAlign: 'center',
       renderCell: ({ value }: GridRenderCellParams) => {
         const v = value as number
         return (
@@ -76,11 +167,20 @@ export function ReconciliationPage() {
       },
     },
     {
-      field: 'actions', headerName: '', width: 56, sortable: false,
+      field: 'actions',
+      headerName: '',
+      // ── KEPT narrow but switched to minWidth + no flex so the icon
+      //    column stays compact while everything else stretches.
+      width: 64,
+      minWidth: 64,
+      sortable: false,
+      disableColumnMenu: true,
       renderCell: ({ row }: GridRenderCellParams<DailyReconciliation>) => (
         <Tooltip title="View details" arrow>
-          <IconButton size="small"
-            onClick={(e) => { e.stopPropagation(); navigate(`/reports/reconciliation/${row.id}`) }}>
+          <IconButton
+            size="small"
+            onClick={(e) => { e.stopPropagation(); navigate(`/reports/reconciliation/${row.id}`) }}
+          >
             <VisibilityIcon fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -112,22 +212,15 @@ export function ReconciliationPage() {
         </Button>
       </Box>
 
-      <DataGrid
+      <AppDataGrid
         rows={records}
         columns={columns}
         loading={isLoading}
-        autoHeight
-        density="comfortable"
-        disableRowSelectionOnClick
         onRowClick={({ row }) => navigate(`/reports/reconciliation/${row.id}`)}
         pageSizeOptions={[25, 50]}
         initialState={{
           pagination: { paginationModel: { pageSize: 25 } },
           sorting:    { sortModel: [{ field: 'reconciliation_date', sort: 'desc' }] },
-        }}
-        sx={{
-          border: '1px solid', borderColor: 'divider', borderRadius: 2,
-          '& .MuiDataGrid-row': { cursor: 'pointer' },
         }}
       />
 

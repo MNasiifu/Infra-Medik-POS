@@ -18,11 +18,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import {
-  DataGrid,
-  type GridColDef,
-  type GridRenderCellParams,
-} from "@mui/x-data-grid";
+import { type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid";
+import { AppDataGrid } from "@/components/molecules/AppDataGrid";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import TableChartIcon from "@mui/icons-material/TableChart";
@@ -518,17 +515,14 @@ export function SalesReportPage() {
       )}
 
       {enabled && (
-        <DataGrid
+        <AppDataGrid
           rows={rows}
           columns={columns}
           getRowId={(r) => r.sale_number}
           loading={isLoading}
-          autoHeight
           density="compact"
-          disableRowSelectionOnClick
           pageSizeOptions={[50, 100, 200]}
           initialState={{ pagination: { paginationModel: { pageSize: 50 } } }}
-          sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2 }}
         />
       )}
     </DashboardTemplate>

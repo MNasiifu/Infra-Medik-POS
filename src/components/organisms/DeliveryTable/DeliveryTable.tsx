@@ -4,7 +4,8 @@ import {
   Box, Button, Chip, FormControl, IconButton, InputAdornment,
   InputLabel, MenuItem, Select, Stack, TextField, Tooltip, Typography,
 } from '@mui/material'
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import SearchIcon       from '@mui/icons-material/Search'
 import VisibilityIcon   from '@mui/icons-material/Visibility'
 import AddIcon          from '@mui/icons-material/Add'
@@ -179,23 +180,12 @@ export function DeliveryTable({ onNewDelivery }: Props) {
         </Button>
       </Stack>
 
-      <DataGrid
+      <AppDataGrid
         rows={orders}
         columns={columns}
         loading={isLoading}
-        autoHeight
-        density="comfortable"
-        disableRowSelectionOnClick
         onRowClick={({ row }) => navigate(`/delivery-orders/${row.id}`)}
         pageSizeOptions={[25, 50]}
-        initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
-        sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 2,
-          '& .MuiDataGrid-row': { cursor: 'pointer' },
-          '& .MuiDataGrid-cell': { alignItems: 'center' },
-        }}
       />
     </Box>
   )

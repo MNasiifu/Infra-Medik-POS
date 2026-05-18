@@ -4,7 +4,8 @@ import {
   Alert, Box, Button, CircularProgress, IconButton,
   Stack, Tooltip, Typography,
 } from '@mui/material'
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import ArrowBackIcon  from '@mui/icons-material/ArrowBack'
 import RefreshIcon    from '@mui/icons-material/Refresh'
 import TableChartIcon from '@mui/icons-material/TableChart'
@@ -34,7 +35,6 @@ export function StockReportPage() {
       renderCell: ({ row }: GridRenderCellParams<StockValuationRow>) => (
         <Box py={0.5}>
           <Typography variant="body2" fontWeight={600}>{row.product_name}</Typography>
-          {row.generic_name && <Typography variant="caption" color="text.secondary">{row.generic_name}</Typography>}
         </Box>
       ),
     },
@@ -140,17 +140,15 @@ export function StockReportPage() {
 
       {isError && <Alert severity="error" sx={{ mb: 2 }}>Failed to load report. Make sure get_stock_valuation RPC is deployed.</Alert>}
 
-      <DataGrid
+      <AppDataGrid
         rows={rows}
         columns={columns}
         getRowId={(r) => `${r.product_name}-${r.batch_number ?? 'x'}`}
         loading={isLoading}
         autoHeight
         density="compact"
-        disableRowSelectionOnClick
         pageSizeOptions={[50, 100]}
         initialState={{ pagination: { paginationModel: { pageSize: 50 } } }}
-        sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
       />
     </DashboardTemplate>
   )

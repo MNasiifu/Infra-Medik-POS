@@ -3,7 +3,8 @@ import {
   Box, Button, Chip, IconButton, InputAdornment, Stack,
   Switch, FormControlLabel, TextField, Tooltip, Typography,
 } from '@mui/material'
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import SearchIcon   from '@mui/icons-material/Search'
 import EditIcon     from '@mui/icons-material/Edit'
 import DeleteIcon   from '@mui/icons-material/Delete'
@@ -156,21 +157,11 @@ export function CustomerTable() {
         </Button>
       </Stack>
 
-      <DataGrid
+      <AppDataGrid
         rows={customers}
         columns={columns}
         loading={isLoading}
-        autoHeight
-        density="comfortable"
-        disableRowSelectionOnClick
         pageSizeOptions={[25, 50]}
-        initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
-        sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 2,
-          '& .MuiDataGrid-cell': { alignItems: 'center' },
-        }}
       />
 
       <CustomerForm

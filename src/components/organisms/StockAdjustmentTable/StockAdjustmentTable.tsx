@@ -4,7 +4,8 @@ import {
   InputAdornment, Stack, Button, FormControl,
   InputLabel, Select,
 } from '@mui/material'
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon    from '@mui/icons-material/Add'
 
@@ -158,28 +159,13 @@ export function StockAdjustmentTable() {
       </Stack>
 
       {/* Data grid */}
-      <DataGrid
+      <AppDataGrid
         rows={adjustments}
         columns={columns}
         loading={isLoading}
-        autoHeight
-        density="comfortable"
-        disableRowSelectionOnClick
-        pageSizeOptions={[25, 50, 100]}
         initialState={{
           pagination: { paginationModel: { pageSize: 25 } },
           sorting:    { sortModel: [{ field: 'created_at', sort: 'desc' }] },
-        }}
-        sx={{
-          border: '1px solid', borderColor: 'divider', borderRadius: 2,
-          '& .MuiDataGrid-row': { cursor: 'default' },
-          backgroundColor: 'background.paper',
-          '& .MuiDataGrid-columnHeaders': {
-            borderBottom: '1px solid', borderColor: 'divider',
-          },
-          '& .MuiDataGrid-footerContainer': {
-            borderTop: '1px solid', borderColor: 'divider',
-          },
         }}
       />
 

@@ -4,7 +4,8 @@ import {
   Alert, Box, Button, Chip, CircularProgress, FormControl, IconButton,
   InputLabel, MenuItem, Paper, Select, Stack, Tooltip, Typography,
 } from '@mui/material'
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import ArrowBackIcon  from '@mui/icons-material/ArrowBack'
 import PlayArrowIcon  from '@mui/icons-material/PlayArrow'
 import TableChartIcon from '@mui/icons-material/TableChart'
@@ -57,7 +58,6 @@ export function ExpiryReportPage() {
       renderCell: ({ row }: GridRenderCellParams<ExpiryReportRow>) => (
         <Box py={0.5}>
           <Typography variant="body2" fontWeight={600}>{row.product_name}</Typography>
-          {row.generic_name && <Typography variant="caption" color="text.secondary">{row.generic_name}</Typography>}
         </Box>
       ),
     },
@@ -195,20 +195,17 @@ export function ExpiryReportPage() {
       )}
 
       {enabled && (
-        <DataGrid
+        <AppDataGrid
           rows={rows}
           columns={columns}
           getRowId={(r) => `${r.product_name}-${r.batch_number ?? 'x'}`}
           loading={isLoading}
-          autoHeight
           density="compact"
-          disableRowSelectionOnClick
           pageSizeOptions={[50, 100]}
           initialState={{
             pagination: { paginationModel: { pageSize: 50 } },
             sorting:    { sortModel: [{ field: 'days_until_expiry', sort: 'asc' }] },
           }}
-          sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
         />
       )}
     </DashboardTemplate>

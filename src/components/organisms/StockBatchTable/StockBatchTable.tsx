@@ -4,9 +4,8 @@ import {
   InputAdornment, Stack, Button, Typography,
   Select, FormControl, InputLabel, Switch, FormControlLabel,
 } from '@mui/material'
-import {
-  DataGrid, type GridColDef, type GridRenderCellParams,
-} from '@mui/x-data-grid'
+import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import SearchIcon      from '@mui/icons-material/Search'
 import EditIcon        from '@mui/icons-material/Edit'
 import FilterListIcon  from '@mui/icons-material/FilterList'
@@ -235,40 +234,17 @@ export function StockBatchTable() {
       )}
 
       {/* Data grid */}
-      <DataGrid
+      <AppDataGrid
         rows={batches}
         columns={columns}
         loading={isLoading}
-        autoHeight
-        density="comfortable"
-        disableRowSelectionOnClick
-        pageSizeOptions={[25, 50, 100]}
         initialState={{
           pagination: { paginationModel: { pageSize: 25 } },
           sorting:    { sortModel: [{ field: 'expiry_date', sort: 'asc' }] },
         }}
         sx={{
-          border: '1px solid', borderColor: 'divider', borderRadius: 2,
-          '& .MuiDataGrid-row': { cursor: 'default' },
-          '& .MuiDataGrid-cell': {
-            alignItems: 'center', borderBottom: 'none', display: 'flex',
-          },
           '& .MuiDataGrid-row:nth-of-type(odd)': {
             borderBottom: '1px solid', borderColor: 'divider',
-          },
-          backgroundColor: 'background.paper',
-          '& .MuiDataGrid-columnHeaders': {
-            borderBottom: '1px solid', borderColor: 'divider',
-          },
-          '& .MuiDataGrid-footerContainer': {
-            borderTop: '1px solid', borderColor: 'divider',
-            backgroundColor: 'background.paper',
-          },
-          '& .MuiDataGrid-row:hover': {
-            backgroundColor: (theme) =>
-              theme.palette.mode === 'dark'
-                ? 'rgba(255,255,255,0.04)'
-                : 'rgba(0,0,0,0.03)',
           },
         }}
       />

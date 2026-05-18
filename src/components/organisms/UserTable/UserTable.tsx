@@ -4,7 +4,8 @@ import {
   InputLabel, MenuItem, Select, Stack, Switch, FormControlLabel,
   TextField, Tooltip, Typography,
 } from '@mui/material'
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
+import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import SearchIcon    from '@mui/icons-material/Search'
 import EditIcon      from '@mui/icons-material/Edit'
 import AddIcon       from '@mui/icons-material/Add'
@@ -225,21 +226,10 @@ export function UserTable() {
       </Stack>
 
       {/* ── Data grid ───────────────────────────────────── */}
-      <DataGrid
+      <AppDataGrid
         rows={users}
         columns={columns}
         loading={isLoading}
-        autoHeight
-        density="comfortable"
-        disableRowSelectionOnClick
-        pageSizeOptions={[25, 50, 100]}
-        initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
-        sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 2,
-          '& .MuiDataGrid-cell': { alignItems: 'center' },
-        }}
       />
 
       {/* ── Create / edit dialog ─────────────────────────── */}
