@@ -222,13 +222,13 @@ const NAV: NavItem[] = [
     icon: <ManageAccountsIcon />,
     roles: ["admin"],
   },
-  {
-    id: "settings",
-    label: "Settings",
-    path: "/settings",
-    icon: <SettingsIcon />,
-    roles: ["admin"],
-  },
+  // {
+  //   id: "settings",
+  //   label: "Settings",
+  //   path: "/settings",
+  //   icon: <SettingsIcon />,
+  //   roles: ["admin"],
+  // },
 ];
 
 interface Props {

@@ -133,6 +133,10 @@ const PlaceholderPage = page(
   () => import("@/pages/Placeholder/PlaceholderPage"),
   "PlaceholderPage",
 );
+const UserPage = page(
+  () => import("@/pages/user/UserPage"),
+  "UserPage",
+);
 
 // ─── Suspense fallback ────────────────────────────────────────
 
@@ -439,11 +443,7 @@ export const router = createBrowserRouter([
             path: "/users",
             element: (
               <S>
-                <PlaceholderPage
-                  title="User Management"
-                  phase={1}
-                  description="Admin-only user creation, role management, and credential emails."
-                />
+                <UserPage />
               </S>
             ),
           },
