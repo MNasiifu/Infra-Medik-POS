@@ -6,7 +6,7 @@ export function NotificationManager() {
 
   return (
     <>
-      {notifications.map((n, idx) => (
+      {notifications.map((n) => (
         <Snackbar
           key={n.id}
           open

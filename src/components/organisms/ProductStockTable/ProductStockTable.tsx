@@ -35,10 +35,9 @@ import { useNavigate } from "react-router-dom";
 import { useProductStock } from "@/hooks/inventory/useInventory";
 import { useProductBatches } from "@/hooks/inventory/useInventory";
 import { useCategories, useSuppliers } from "@/hooks/shared/useReferenceData";
-import { formatUGX, formatDate, getDaysUntilExpiry } from "@/lib/formatters";
+import { formatDate, getDaysUntilExpiry } from "@/lib/formatters";
 import type {
   ProductStockAggregate,
-  StockBatchWithDetails,
 } from "@/services/inventoryService";
 
 function StockStatusChip({ quantity }: { quantity: number }) {
@@ -515,14 +514,13 @@ export function ProductStockTable() {
           columns={columns}
           getRowId={(row) => row.product_id}
           loading={isLoading}
-          disableSelectionOnClick
+          disableRowSelectionOnClick
           density="comfortable"
           sx={{
             "& .MuiDataGrid-cell": { py: 1 },
             "& .MuiDataGrid-row:hover": { bgcolor: "action.hover" },
           }}
           columnHeaderHeight={44}
-          virtualization={{}}
         />
       </Box>
 

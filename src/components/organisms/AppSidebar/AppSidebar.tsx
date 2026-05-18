@@ -37,7 +37,6 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import SettingsIcon from "@mui/icons-material/Settings";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";

@@ -19,7 +19,6 @@ import type { SaleType }          from '@/types/database.types'
 
 const SALE_TYPE_LABELS: Record<SaleType, string> = {
   walk_in:  'Walk-in',
-  delivery: 'Delivery',
   account:  'Account',
 }
 
