@@ -157,7 +157,7 @@ begin
     v_item_inclusive    := (v_item->>'unit_price_inclusive')::numeric;
     v_qty_needed        := v_item_qty;
 
-    -- FEFO batch loop: earliest expiry first, then oldest batch
+    -- FEFO batch loop: earliest expiry first, then earliest stock_in_date (FIFO)
     for v_batch in
       select id, quantity_remaining
       from stock_batches
@@ -166,7 +166,7 @@ begin
         and branch_id        = (p_data->>'branch_id')::uuid
         and quantity_remaining > 0
         and (expiry_date is null or expiry_date >= current_date)
-      order by expiry_date asc nulls last, created_at asc
+      order by expiry_date asc nulls last, stock_in_date asc
       for update  -- row-level lock to prevent race conditions
     loop
       exit when v_qty_needed <= 0;

@@ -33,6 +33,7 @@ import SellIcon from "@mui/icons-material/Sell";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import ReceiptIcon from "@mui/icons-material/Receipt";
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
@@ -96,6 +97,13 @@ const NAV: NavItem[] = [
         label: "Overview",
         path: "/inventory/overview",
         icon: <GridViewIcon />,
+        roles: ["admin", "manager"],
+      },
+      {
+        id: "inv-product-stock",
+        label: "Product Stock",
+        path: "/inventory/product-stock",
+        icon: <AssignmentIcon />,
         roles: ["admin", "manager"],
       },
       {
