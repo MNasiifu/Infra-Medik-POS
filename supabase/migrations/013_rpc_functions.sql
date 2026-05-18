@@ -217,7 +217,7 @@ begin
   insert into payments (sale_id, payment_method, amount, reference_number)
   select
     v_sale_id,
-    (p->>'payment_method')::payment_method,
+    (p->>'method')::payment_method,
     (p->>'amount')::numeric,
     nullif(p->>'reference_number', '')
   from jsonb_array_elements(p_data->'payments') p;
@@ -1186,14 +1186,15 @@ $$;
 create or replace function search_products(p_query text, p_branch_id uuid default null)
 returns table (
   product_id      uuid,
+  unit_id         uuid,
   product_name    text,
   generic_name    text,
-  dosage_form     dosage_form,
+  dosage_form     text,
   strength        text,
   barcode         text,
   default_unit    text,
   selling_price   numeric,
-  stock_available numeric,
+  stock_available bigint,
   is_vat_exempt   boolean
 )
 language plpgsql
@@ -1205,35 +1206,37 @@ begin
   v_branch_id := coalesce(p_branch_id, get_user_branch_id());
 
   return query
-  select
+  select distinct on (p.id, pu.id)
     p.id,
-    p.name,
-    p.generic_name,
-    p.dosage_form,
-    p.strength,
-    pb.barcode,
-    pu.unit_name,
+    pu.id,
+    p.name::text,
+    p.generic_name::text,
+    p.dosage_form::text,
+    p.strength::text,
+    (select pb.barcode from product_barcodes pb where pb.product_id = p.id limit 1)::text,
+    pu.unit_name::text,
     pu.selling_price,
-    coalesce(sum(sb.quantity_remaining), 0),
+    coalesce((
+      select sum(sb.quantity_remaining)::bigint
+      from stock_batches sb
+      where sb.product_id = p.id
+        and sb.product_unit_id = pu.id
+        and sb.branch_id = v_branch_id
+        and sb.quantity_remaining > 0
+        and (sb.expiry_date is null or sb.expiry_date >= current_date)
+    ), 0::bigint),
     p.is_vat_exempt
   from products p
-  left join product_barcodes pb on pb.product_id = p.id
   join product_units pu on pu.product_id = p.id and pu.is_default = true
-  left join stock_batches sb on sb.product_id = p.id
-    and sb.branch_id = v_branch_id
-    and sb.quantity_remaining > 0
-    and (sb.expiry_date is null or sb.expiry_date >= current_date)
   where p.is_active = true and p.deleted_at is null
     and (
       p.name          ilike '%' || p_query || '%'
       or p.generic_name ilike '%' || p_query || '%'
-      or pb.barcode = p_query
-      or p.name % p_query           -- trigram similarity
+      or exists (select 1 from product_barcodes pb where pb.product_id = p.id and pb.barcode = p_query)
+      or p.name % p_query
     )
-  group by p.id, p.name, p.generic_name, p.dosage_form, p.strength,
-           pb.barcode, pu.unit_name, pu.selling_price, p.is_vat_exempt
-  order by
-    case when pb.barcode = p_query then 0 else 1 end,
+  order by p.id, pu.id,
+    case when exists (select 1 from product_barcodes pb where pb.product_id = p.id and pb.barcode = p_query) then 0 else 1 end,
     similarity(p.name, p_query) desc
   limit 20;
 end;

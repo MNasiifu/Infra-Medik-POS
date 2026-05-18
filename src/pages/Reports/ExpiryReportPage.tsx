@@ -53,7 +53,7 @@ export function ExpiryReportPage() {
 
   const columns: GridColDef<ExpiryReportRow>[] = useMemo(() => [
     {
-      field: 'product_name', headerName: 'Product', flex: 1, minWidth: 180,
+      field: 'product_name', headerName: 'Product', flex: 1, width: 150,
       renderCell: ({ row }: GridRenderCellParams<ExpiryReportRow>) => (
         <Box py={0.5}>
           <Typography variant="body2" fontWeight={600}>{row.product_name}</Typography>
@@ -86,9 +86,6 @@ export function ExpiryReportPage() {
       renderCell: ({ value }: GridRenderCellParams) =>
         <Typography variant="body2" fontWeight={600}>{value as number}</Typography> },
     { field: 'unit_name', headerName: 'Unit', width: 100 },
-    { field: 'branch_name', headerName: 'Branch', width: 140,
-      renderCell: ({ value }: GridRenderCellParams) =>
-        <Typography variant="body2" color={value ? 'text.primary' : 'text.disabled'}>{value ?? '—'}</Typography> },
   ], [])
 
   const handleExportExcel = async () => {

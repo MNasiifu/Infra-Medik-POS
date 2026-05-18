@@ -1,8 +1,8 @@
-import { Snackbar, Alert } from '@mui/material'
-import { useNotificationStore } from '@/store/notificationStore'
+import { Snackbar, Alert } from "@mui/material";
+import { useNotificationStore } from "@/store/notificationStore";
 
 export function NotificationManager() {
-  const { notifications, remove } = useNotificationStore()
+  const { notifications, remove } = useNotificationStore();
 
   return (
     <>
@@ -12,8 +12,8 @@ export function NotificationManager() {
           open
           autoHideDuration={n.duration ?? 4000}
           onClose={() => remove(n.id)}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          sx={{ bottom: { xs: 16 + idx * 64, sm: 24 + idx * 72 } }}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          // sx={{ mt: { xs: 16 + idx * 64, sm: 24 + idx * 72 } }}
         >
           <Alert
             severity={n.severity}
@@ -26,5 +26,5 @@ export function NotificationManager() {
         </Snackbar>
       ))}
     </>
-  )
+  );
 }

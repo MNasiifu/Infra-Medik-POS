@@ -20,6 +20,7 @@ import { notify }                     from '@/store/notificationStore'
 import type { PaymentEntry }          from '@/hooks/pos/useCompleteSale'
 import type { ReceiptData }           from '@/lib/receipt'
 import type { Customer }              from '@/types/database.types'
+import { useAuth } from '@/hooks/auth/useAuth'
 
 type PosStep = 'cart' | 'payment'
 
@@ -37,7 +38,8 @@ export function POSPage() {
   const setCustomer  = useCartStore((s) => s.setCustomer)
   const itemCount    = useCartStore((s) => s.itemCount())
 
-  const profile    = useAuthStore((s) => s.profile)
+  const {profile}    = useAuthStore((s) => s)
+  const {branchDetails} = useAuth()
   const tellerName = profile?.full_name ?? 'Teller'
 
   const completeSale  = useCompleteSale()
@@ -59,17 +61,19 @@ export function POSPage() {
       // Submit to URA EFRIS — failure must not block the sale
       let efrisVerificationCode: string | null = null
       let efrisQrData: string | null = null
-      try {
-        const efris = await submitEfris.mutateAsync(result.sale_id)
-        if (efris.success) {
-          efrisVerificationCode = efris.verification_code
-          efrisQrData           = efris.qr_data
-        } else {
-          notify.warning('EFRIS submission failed — receipt will show pending status')
-        }
-      } catch {
-        notify.warning('EFRIS submission failed — receipt will show pending status')
-      }
+      // try {
+      //   const efris = await submitEfris.mutateAsync(result.sale_id)
+      //   if (efris.success) {
+      //     efrisVerificationCode = efris.verification_code
+      //     efrisQrData           = efris.qr_data
+      //   } else {
+      //     // notify.warning('EFRIS submission failed — receipt will show pending status')
+      //     console.warn('EFRIS submission failed', efris.error)
+      //   }
+      // } catch (error) {
+      //   // notify.warning('EFRIS submission failed — receipt will show pending status')
+      //   console.error('EFRIS submission failed', error)
+      // }
 
       setReceipt(buildReceipt({
         result, lines, payments, customerName, tellerName, grandTotal,
@@ -282,6 +286,7 @@ export function POSPage() {
       <ReceiptDialog
         open={receiptOpen}
         receipt={receipt}
+        branchDetails={branchDetails}
         onClose={() => setReceiptOpen(false)}
         onNewSale={handleNewSale}
       />

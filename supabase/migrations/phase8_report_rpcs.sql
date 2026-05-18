@@ -73,8 +73,8 @@ RETURNS TABLE (
   unit_name          TEXT,
   batch_number       TEXT,
   expiry_date        DATE,
-  quantity_remaining INTEGER,
-  unit_cost          NUMERIC,
+  quantity_remaining NUMERIC(12,4),          -- fixed: was INTEGER, table is numeric(12,4)
+  unit_cost          NUMERIC(12,2),
   batch_value        NUMERIC
 )
 LANGUAGE plpgsql
@@ -91,10 +91,10 @@ BEGIN
     sb.batch_number,
     sb.expiry_date,
     sb.quantity_remaining,
-    COALESCE(sb.unit_cost, 0),
-    sb.quantity_remaining * COALESCE(sb.unit_cost, 0)
+    COALESCE(sb.cost_price_per_unit, 0),                              -- fixed: was sb.unit_cost
+    sb.quantity_remaining * COALESCE(sb.cost_price_per_unit, 0)      -- fixed: was sb.unit_cost
   FROM stock_batches sb
-  JOIN  products  pr  ON pr.id  = sb.product_id
+  JOIN  products      pr  ON pr.id  = sb.product_id
   LEFT JOIN product_units pu  ON pu.product_id = pr.id AND pu.is_default = TRUE
   LEFT JOIN categories    cat ON cat.id = pr.category_id
   WHERE sb.quantity_remaining > 0
@@ -102,6 +102,8 @@ BEGIN
   ORDER BY pr.name, sb.expiry_date NULLS LAST;
 END;
 $$;
+
+GRANT EXECUTE ON FUNCTION get_stock_valuation(UUID) TO authenticated;
 
 GRANT EXECUTE ON FUNCTION get_stock_valuation(UUID) TO authenticated;
 
@@ -116,7 +118,7 @@ RETURNS TABLE (
   batch_number       TEXT,
   expiry_date        DATE,
   days_until_expiry  INTEGER,
-  quantity_remaining INTEGER,
+  quantity_remaining NUMERIC(12,4),  -- ← was INTEGER, matches stock_batches
   unit_name          TEXT,
   branch_name        TEXT
 )

@@ -158,6 +158,20 @@ export function receiptToHtml(r: ReceiptData): string {
   table { width: 100%; border-collapse: collapse; }
   .total-row td { font-weight: bold; }
   .grand-row td { font-size: 13px; font-weight: bold; }
+  .cash-section { 
+    border: 1px solid #2E7D32; 
+    padding: 6px; 
+    margin: 4px 0;
+    background-color: #f0f7f0;
+    border-radius: 2px;
+  }
+  .cash-row { 
+    display: flex; 
+    justify-content: space-between; 
+    font-weight: bold;
+    margin: 2px 0;
+    color: #2E7D32;
+  }
   @media print {
     @page { margin: 0; size: 80mm auto; }
     body { padding: 2px; }
@@ -189,9 +203,22 @@ export function receiptToHtml(r: ReceiptData): string {
   ${divider}
   <table>
     ${paymentRows}
-    ${r.change > 0 ? `<tr><td>Change</td><td style="text-align:right">${formatUGX(r.change)}</td></tr>` : ""}
   </table>
   ${divider}
+  <div class="cash-section">
+    <div class="cash-row">
+      <span>CASH RECEIVED</span>
+      <span>${formatUGX(r.amountTendered)}</span>
+    </div>
+    ${
+      r.change > 0
+        ? `<div class="cash-row">
+      <span>CHANGE DUE</span>
+      <span>${formatUGX(r.change)}</span>
+    </div>`
+        : ""
+    }
+  </div>
   ${divider}
   ${
     r.efrisVerificationCode

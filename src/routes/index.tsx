@@ -107,6 +107,7 @@ export const router = createBrowserRouter([
           { path: '/products/:id',      element: <S><ProductDetailPage /></S>  },
           { path: '/products/:id/edit', element: <S><ProductFormPage /></S>    },
           { path: '/inventory',                 element: <S><InventoryOverviewPage /></S> },
+          { path: '/inventory/overview',                 element: <S><InventoryOverviewPage /></S> },
           { path: '/inventory/batches',         element: <S><StockBatchesPage /></S>     },
           { path: '/inventory/adjustments',     element: <S><StockAdjustmentsPage /></S> },
           { path: '/inventory/stock-takes',          element: <S><StockTakesPage /></S>          },

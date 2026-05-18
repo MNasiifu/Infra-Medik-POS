@@ -3,92 +3,130 @@
  *
  * Provides auth state reads and action callbacks (signIn, signOut, changePassword).
  *
- * The session bootstrap has been moved to useAuthBootstrap (called once in App.tsx).
- * This hook is now a pure store reader + action dispatcher — no side-effects, no
- * risk of tearing down the auth listener when a route transition unmounts a guard.
+ * Responsibilities:
+ *  - Read auth state from the Zustand store (single source of truth).
+ *  - Expose stable action callbacks (signIn, signOut, changePassword).
+ *  - Manage branchDetails via a typed storage helper — never raw localStorage access.
+ *
+ * Not responsible for:
+ *  - Session bootstrapping (handled once in useAuthBootstrap, called from App.tsx).
+ *  - Redirect logic (handled by ProtectedRoute).
  */
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase }      from '@/lib/supabase'
-import { useAuthStore }  from '@/store/authStore'
-import { queryClient }   from '@/lib/queryClient'
-import { notify }        from '@/store/notificationStore'
-import type { Profile }  from '@/types/database.types'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const db = supabase as any
+import { supabase }       from '@/lib/supabase'
+import { useAuthStore }   from '@/store/authStore'
+import { queryClient }    from '@/lib/queryClient'
+import { notify }         from '@/store/notificationStore'
+import {
+  fetchProfile,
+  fetchBranchDetails,
+  updateMustChangePassword,
+} from '@/services/authService'
+import type { Profile } from '@/types/database.types'
+import { branchStorage } from '@/store/localStorage'
 
-async function fetchProfile(userId: string): Promise<Profile | null> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single()
-  if (error) return null
-  return data
-}
+// ─── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useAuth() {
   const {
-    session, user, profile,
-    isLoading, isInitialized,
-    setSession, setProfile, setLoading, clearAuth,
-    isAuthenticated, mustChangePassword, role, branchId, fullName,
+    session,
+    user,
+    profile,
+    isLoading,
+    isInitialized,
+    setSession,
+    setProfile,
+    setLoading,
+    clearAuth,
+    isAuthenticated,
+    mustChangePassword,
+    role,
+    branchId,
+    fullName,
   } = useAuthStore()
 
   const navigate = useNavigate()
 
-  // ── Actions ────────────────────────────────────────────────────────────────
+  // Derived synchronously from storage — stable between renders because the
+  // underlying localStorage value only changes inside signIn / signOut.
+  const branchDetails = branchStorage.get()
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    setLoading(true)
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) throw new Error(error.message)
-      const p = await fetchProfile(data.user.id)
-      setSession(data.session, data.user)
-      setProfile(p)
-      return p
-    } finally {
-      setLoading(false)
-    }
-  }, [setLoading, setSession, setProfile])
+  // ── signIn ──────────────────────────────────────────────────────────────────
 
-  const signOut = useCallback(async () => {
+  const signIn = useCallback(
+    async (email: string, password: string): Promise<Profile> => {
+      setLoading(true)
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) throw new Error(error.message)
+
+        const profile = await fetchProfile(data.user.id)
+        if (!profile) throw new Error('Profile not found.')
+
+        const branch = await fetchBranchDetails(profile.branch_id)
+        if (!branch) throw new Error('Active branch not found.')
+
+        // Commit to store and storage only after all fetches succeed — no
+        // partial state is ever persisted on failure.
+        setSession(data.session, data.user)
+        setProfile(profile)
+        branchStorage.set(branch)
+
+        return profile
+      } catch (err) {
+        // Guarantee no stale branch data survives a failed sign-in attempt.
+        branchStorage.clear()
+        throw err
+      } finally {
+        setLoading(false)
+      }
+    },
+    [setLoading, setSession, setProfile],
+  )
+
+  // ── signOut ─────────────────────────────────────────────────────────────────
+
+  const signOut = useCallback(async (): Promise<void> => {
     try {
       await supabase.auth.signOut()
       clearAuth()
+      branchStorage.clear()
       queryClient.clear()
       notify.info('You have been signed out.')
       navigate('/login', { replace: true })
-    } catch (error) {
-      console.error('Sign out error:', error)
-      const msg = error instanceof Error ? error.message : 'Sign out failed'
-      notify.error(msg)
+    } catch (err) {
+      console.error('[useAuth] signOut error:', err)
+      notify.error(err instanceof Error ? err.message : 'Sign out failed.')
     }
   }, [clearAuth, navigate])
 
-  const changePassword = useCallback(async (newPassword: string) => {
-    const { error } = await supabase.auth.updateUser({ password: newPassword })
-    if (error) throw new Error(error.message)
+  // ── changePassword ──────────────────────────────────────────────────────────
 
-    const { error: profileError } = await db
-      .from('profiles')
-      .update({ must_change_password: false })
-      .eq('id', user!.id)
+  const changePassword = useCallback(
+    async (newPassword: string): Promise<void> => {
+      if (!user) throw new Error('No authenticated user.')
 
-    if (profileError) throw new Error(profileError.message)
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw new Error(error.message)
 
-    setProfile({ ...profile!, must_change_password: false })
-    notify.success('Password changed successfully.')
-  }, [user, profile, setProfile])
+      await updateMustChangePassword(user.id)
 
-  // ── Return ─────────────────────────────────────────────────────────────────
+      // Keep store in sync — optimistic update after confirmed DB write.
+      setProfile({ ...profile!, must_change_password: false })
+      notify.success('Password changed successfully.')
+    },
+    [user, profile, setProfile],
+  )
+
+  // ── Return ──────────────────────────────────────────────────────────────────
 
   return {
     session,
     user,
     profile,
+    branchDetails,
     isLoading,
     isInitialized,
     isAuthenticated:    isAuthenticated(),
@@ -102,12 +140,14 @@ export function useAuth() {
   }
 }
 
-// Convenience hook for components that just need to check auth state
-export function useRequireAuth() {
-  const navigate = useNavigate()
-  const { isAuthenticated, isInitialized, mustChangePassword } = useAuth()
+// ─── useRequireAuth ────────────────────────────────────────────────────────────
 
-  // No useEffect needed — ProtectedRoute already handles the redirect.
-  // This hook is kept for components that optionally want to know auth state.
-  return { isAuthenticated, isInitialized, mustChangePassword, navigate }
+/**
+ * Lightweight convenience hook for components that only need to inspect auth
+ * state without triggering any side-effects.  Redirect enforcement lives in
+ * ProtectedRoute — not here.
+ */
+export function useRequireAuth() {
+  const { isAuthenticated, isInitialized, mustChangePassword } = useAuth()
+  return { isAuthenticated, isInitialized, mustChangePassword }
 }

@@ -26,7 +26,7 @@ import FactCheckIcon from "@mui/icons-material/FactCheck";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import PeopleIcon from "@mui/icons-material/People";
-import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
+import GridViewIcon from '@mui/icons-material/GridView';
 import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import SellIcon from "@mui/icons-material/Sell";
@@ -91,6 +91,13 @@ const NAV: NavItem[] = [
     icon: <WarehouseIcon />,
     roles: ["admin", "manager"],
     children: [
+       {
+        id: "inv-overview",
+        label: "Overview",
+        path: "/inventory/overview",
+        icon: <GridViewIcon />,
+        roles: ["admin", "manager"],
+      },
       {
         id: "inv-batches",
         label: "Stock Batches",

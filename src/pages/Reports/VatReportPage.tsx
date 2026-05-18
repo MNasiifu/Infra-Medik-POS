@@ -103,7 +103,7 @@ export function VatReportPage() {
         <Box flex={1}>
           <Typography variant="h5" fontWeight={700}>VAT Report</Typography>
           <Typography variant="body2" color="text.secondary">
-            Total VAT collected with daily breakdown — TIN: 10756690689.
+            Total VAT collected with daily breakdown
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>

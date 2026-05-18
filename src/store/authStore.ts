@@ -37,6 +37,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   clearAuth: () => {
     set({ session: null, user: null, profile: null });
     localStorage.removeItem('infra-medik-auth');
+    localStorage.removeItem('infra-medik-branch');
   },
 
   isAuthenticated: () => get().session !== null && get().user !== null,

@@ -50,7 +50,7 @@ export type DeliveryStatus =
   | "dispatched"
   | "delivered"
   | "cancelled";
-export type SaleType = "walk_in" | "delivery" | "account";
+export type SaleType = "walk_in" | "account";
 export type PaymentStatus = "paid" | "partial" | "pending";
 export type PaymentMethod = "cash" | "mtn_momo" | "airtel_money";
 export type ReturnType = "restock" | "writeoff";
@@ -126,7 +126,7 @@ export interface Profile {
   full_name: string;
   email: string;
   role: UserRole;
-  branch_id: string | null;
+  branch_id: string;
   must_change_password: boolean;
   is_active: boolean;
   last_login_at: string | null;
