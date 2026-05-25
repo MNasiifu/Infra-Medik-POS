@@ -56,6 +56,7 @@ export function buildReceipt({
   customerName,
   tellerName,
   grandTotal,
+  amountTendered,
   efrisVerificationCode = null,
   efrisQrData = null,
 }: {
@@ -67,8 +68,8 @@ export function buildReceipt({
   grandTotal: number;
   efrisVerificationCode?: string | null;
   efrisQrData?: string | null;
+  amountTendered: number;
 }): ReceiptData {
-  const amountTendered = payments.reduce((s, p) => s + p.amount, 0);
 
   return {
     shopName: "INFRA MEDIK",

@@ -49,7 +49,7 @@ export function POSPage() {
     setCustomer(c?.id ?? null, c?.full_name ?? null)
   }, [setCustomer])
 
-  const handlePaymentConfirm = useCallback(async (payments: PaymentEntry[]) => {
+  const handlePaymentConfirm = useCallback(async (payments: PaymentEntry[], amountTendered: number) => {
     try {
       const result = await completeSale.mutateAsync({
         customerId:  customerId,
@@ -76,7 +76,7 @@ export function POSPage() {
       // }
 
       setReceipt(buildReceipt({
-        result, lines, payments, customerName, tellerName, grandTotal,
+        result, lines, payments, customerName, tellerName, grandTotal, amountTendered,
         efrisVerificationCode, efrisQrData,
       }))
       setReceiptOpen(true)

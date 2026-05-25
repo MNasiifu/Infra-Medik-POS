@@ -19,12 +19,13 @@ import LocalAtmIcon from "@mui/icons-material/LocalAtm";
 import CellTowerIcon from "@mui/icons-material/CellTower";
 
 import { formatUGX } from "@/lib/formatters";
+import { notify } from "@/store/notificationStore";
 import type { PaymentEntry } from "@/hooks/pos/useCompleteSale";
 import type { PaymentMethod } from "@/types/database.types";
 
 interface Props {
   grandTotal: number;
-  onConfirm: (payments: PaymentEntry[]) => void;
+  onConfirm: (payments: PaymentEntry[], amountTendered: number) => void;
   isSubmitting: boolean;
   disabled?: boolean;
 }
@@ -70,6 +71,7 @@ export function PaymentPanel({
   );
   const [primaryReference, setPrimaryReference] = useState<string>("");
   const [splitLines, setSplitLines] = useState<PaymentLine[]>([]);
+  const [cashReceived, setCashReceived] = useState<number>(grandTotal);
 
   // Calculate primary payment amount
   const primaryAmountValue = parseFloat(primaryAmount) || 0;
@@ -99,25 +101,74 @@ export function PaymentPanel({
   const isValid = isPrimaryValid && areSplitsValid;
 
   const updateSplitLine = (id: string, patch: Partial<PaymentLine>) =>
-    setSplitLines((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, ...patch } : l)),
-    );
+    setSplitLines((prev) => {
+      const updatedLines = prev.map((l) =>
+        l.id === id ? { ...l, ...patch } : l,
+      );
 
-  const removeSplitLine = (id: string) =>
-    setSplitLines((prev) => prev.filter((l) => l.id !== id));
+      // If method is being changed to/from cash, update cashReceived
+      if (patch.method) {
+        const lineToUpdate = prev.find((l) => l.id === id);
+        const oldAmount = parseFloat(lineToUpdate?.amount || "0") || 0;
+        const wasCash = lineToUpdate?.method === "cash";
+        const isCashNow = patch.method === "cash";
+
+        if (wasCash && !isCashNow) {
+          // Removing cash: subtract old amount
+          setCashReceived((prev) => Math.max(0, prev - oldAmount));
+        } else if (!wasCash && isCashNow) {
+          // Adding cash: add current amount
+          setCashReceived((prev) => prev + oldAmount);
+        }
+      }
+
+      return updatedLines;
+    });
+
+  const removeSplitLine = (id: string) => {
+    setSplitLines((prev) => {
+      const lineToRemove = prev.find((l) => l.id === id);
+      if (lineToRemove && lineToRemove.method === "cash") {
+        // Update cashReceived by removing the cash amount from the deleted line
+        const removedAmount = parseFloat(lineToRemove.amount) || 0;
+        setCashReceived((prev) => Math.max(0, prev - removedAmount));
+      }
+      return prev.filter((l) => l.id !== id);
+    });
+  };
 
   const addSplitLine = () =>
     setSplitLines((prev) => [...prev, newPaymentLine("mtn_momo")]);
 
   const handleConfirm = () => {
     if (!isValid) return;
+
+    const cashPaid =
+      primaryMethod === "cash"
+        ? splitLines.length === 0
+          ? grandTotal
+          : primaryAmountValue
+        : 0;
+
+    const primaryEntry: PaymentEntry[] =
+      cashPaid > 0
+        ? [
+            {
+              method: "cash",
+              amount: cashPaid,
+              reference_number: null,
+            },
+          ]
+        : [
+            {
+              method: primaryMethod,
+              amount: primaryAmountValue,
+              reference_number: primaryReference.trim() || null,
+            },
+          ];
+
     const payments: PaymentEntry[] = [
-      {
-        method: primaryMethod,
-        amount: primaryAmountValue,
-        reference_number:
-          primaryMethod === "cash" ? null : primaryReference.trim() || null,
-      },
+      ...primaryEntry,
       ...splitLines.map((l) => ({
         method: l.method,
         amount: parseFloat(l.amount) || 0,
@@ -125,7 +176,23 @@ export function PaymentPanel({
           l.method === "cash" ? null : l.reference.trim() || null,
       })),
     ];
-    onConfirm(payments);
+
+    // Validate total payments >= grandTotal
+    const totalPayments = payments.reduce((sum, p) => sum + p.amount, 0);
+    if (totalPayments < grandTotal) {
+      const shortfall = grandTotal - totalPayments;
+      notify.error(`Insufficient payment. Short by ${formatUGX(shortfall)}`);
+      return;
+    }
+
+    // Calculate total cash received (primary cash + split cash payments)
+    const splitCashTotal = splitLines
+      .filter((l) => l.method === "cash")
+      .reduce((sum, l) => sum + (parseFloat(l.amount) || 0), 0);
+    const amountTendered =
+      (primaryMethod === "cash" ? cashReceived : 0) + splitCashTotal;
+
+    onConfirm(payments, amountTendered);
   };
 
   return (
@@ -153,7 +220,22 @@ export function PaymentPanel({
         <ToggleButtonGroup
           exclusive
           value={primaryMethod}
-          onChange={(_, v) => v && setPrimaryMethod(v)}
+          onChange={(_, v) => {
+            if (v) {
+              setPrimaryMethod(v);
+              // Update cashReceived when switching payment methods
+              if (v === "cash") {
+                // Switch to cash: set cashReceived to current primaryAmount
+                setCashReceived(parseFloat(primaryAmount) || 0);
+              } else {
+                // Switch away from cash: only include split cash payments
+                const splitCashTotal = splitLines
+                  .filter((l) => l.method === "cash")
+                  .reduce((sum, l) => sum + (parseFloat(l.amount) || 0), 0);
+                setCashReceived(splitCashTotal);
+              }
+            }
+          }}
           fullWidth
           disabled={disabled || isSubmitting}
           sx={{ mb: 2 }}
@@ -195,7 +277,13 @@ export function PaymentPanel({
               fullWidth
               size="medium"
               value={primaryAmount}
-              onChange={(e) => setPrimaryAmount(e.target.value)}
+              onChange={(e) => {
+                setPrimaryAmount(e.target.value);
+                // Update cashReceived when primary method is cash
+                if (primaryMethod === "cash") {
+                  setCashReceived(parseFloat(e.target.value) || 0);
+                }
+              }}
               disabled={disabled || isSubmitting}
               inputProps={{ min: 0, step: 500 }}
               sx={{
@@ -298,9 +386,11 @@ export function PaymentPanel({
                     exclusive
                     size="small"
                     value={line.method}
-                    onChange={(_, v) =>
-                      v && updateSplitLine(line.id, { method: v })
-                    }
+                    onChange={(_, v) => {
+                      if (v) {
+                        updateSplitLine(line.id, { method: v });
+                      }
+                    }}
                     fullWidth
                     disabled={disabled || isSubmitting}
                     sx={{ mb: 1 }}
@@ -337,9 +427,26 @@ export function PaymentPanel({
                       type="number"
                       size="small"
                       value={line.amount}
-                      onChange={(e) =>
-                        updateSplitLine(line.id, { amount: e.target.value })
-                      }
+                      onChange={(e) => {
+                        updateSplitLine(line.id, { amount: e.target.value });
+                        // Update cashReceived if this is a cash split payment
+                        if (line.method === "cash") {
+                          const updatedAmount = parseFloat(e.target.value) || 0;
+                          const otherCashTotal = splitLines
+                            .filter(
+                              (l) => l.id !== line.id && l.method === "cash",
+                            )
+                            .reduce(
+                              (sum, l) => sum + (parseFloat(l.amount) || 0),
+                              0,
+                            );
+                          const primaryCash =
+                            primaryMethod === "cash" ? primaryAmountValue : 0;
+                          setCashReceived(
+                            primaryCash + otherCashTotal + updatedAmount,
+                          );
+                        }
+                      }}
                       disabled={disabled || isSubmitting}
                       inputProps={{ min: 0, step: 500 }}
                       sx={{ flex: 1 }}

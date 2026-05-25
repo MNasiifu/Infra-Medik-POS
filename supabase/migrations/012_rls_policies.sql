@@ -126,7 +126,7 @@ create policy "profiles: admin delete"
 
 create policy "products: authenticated read"
   on products for select to authenticated
-  using (deleted_at is null);
+  using (deleted_at is null or is_admin_or_manager());
 
 create policy "products: admin/manager write"
   on products for insert to authenticated

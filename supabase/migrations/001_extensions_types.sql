@@ -13,9 +13,9 @@ create type user_role as enum ('admin', 'manager', 'teller');
 
 -- ─── Enum: Dosage Forms ──────────────────────────────────────
 create type dosage_form as enum (
-  'tablet', 'capsule', 'syrup', 'suspension', 'cream',
-  'ointment', 'gel', 'injection', 'drops', 'powder',
-  'inhaler', 'patch', 'suppository', 'other'
+  'tablet', 'capsule', 'syrup', 'suspension', 'cream', 'dental foam',
+  'ointment', 'gel', 'injection', 'drops', 'body butter', 'herbal tea', 'soap bar', 'shampoo', 'powder','lip balm', 'topical liquid', 'topical balm', 'topical oil', 'topical cream', 'make-up brush', 'make-up sponge',
+  'inhaler', 'patch', 'suppository', 'pre-lubricated latex condom', 'liquid topical facial toner', 'liquid exfoliating mask', 'other'
 );
 
 -- ─── Enum: Stock Adjustment Types ────────────────────────────

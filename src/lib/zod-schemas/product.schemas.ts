@@ -1,9 +1,10 @@
 import { z } from 'zod'
 
 export const DOSAGE_FORMS = [
-  'tablet', 'capsule', 'syrup', 'suspension', 'cream',
-  'ointment', 'gel', 'injection', 'drops', 'powder',
-  'inhaler', 'patch', 'suppository', 'other',
+  'tablet', 'capsule', 'syrup', 'dental foam', 'suspension', 'cream',
+  'ointment', 'gel', 'lip balm', 'topical oil', 'body butter', 'herbal tea', 'soap bar', 'shampoo', 'topical liquid', 'topical cream', 'topical balm',
+  'injection', 'drops', 'powder', 'make-up brush', 'make-up sponge', 'Pre-lubricated latex condom',
+  'inhaler', 'patch', 'suppository', 'liquid topical facial toner', 'liquid exfoliating mask', 'other',
 ] as const
 
 export const productSchema = z.object({
