@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react'
 import {
   Autocomplete, TextField, Box, Typography, Chip,
-  InputAdornment, CircularProgress,
+  CircularProgress,
 } from '@mui/material'
-import SearchIcon   from '@mui/icons-material/Search'
 import CropFreeIcon from '@mui/icons-material/CropFree'
+
+import { getSearchTextFieldInputProps } from '@/components/molecules/SearchTextField'
 
 import { useProductSearch } from '@/hooks/pos/useProductSearch'
 import { useBarcodeScanner } from '@/hooks/pos/useBarcodeScanner'
@@ -86,23 +87,18 @@ export function ProductSearchBar({ disabled = false }: Props) {
               transition: 'background-color 0.4s',
             },
           }}
-          InputProps={{
-            ...params.InputProps,
-            startAdornment: (
-              <InputAdornment position="start">
-                {scanPulse
-                  ? <CropFreeIcon fontSize="small" color="success" />
-                  : <SearchIcon   fontSize="small" color="action" />
-                }
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <>
-                {isFetching && <CircularProgress size={16} />}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}
+          InputProps={getSearchTextFieldInputProps({
+            value: inputValue,
+            onClear: () => {
+              setInputValue('')
+              setQuery('')
+            },
+            inputProps: params.InputProps,
+            startAdornment: scanPulse
+              ? <CropFreeIcon fontSize="small" color="success" />
+              : undefined,
+            endAdornment: isFetching ? <CircularProgress size={16} /> : undefined,
+          })}
         />
       )}
       renderOption={(props, option) => (

@@ -25,6 +25,8 @@ export function usePermissions() {
     canUsePOS:          is('admin', 'manager', 'teller'),
     canManageDeliveries: is('admin', 'manager', 'teller'),
     canManageCustomers:  is('admin', 'manager', 'teller'),
+    canManageCatalog:    is('admin', 'manager', 'teller'),
+    canDeactivateCatalog: is('admin', 'manager'),
 
     // Teller sees limited dashboard (own data only)
     hasTellerDashboard: is('teller'),

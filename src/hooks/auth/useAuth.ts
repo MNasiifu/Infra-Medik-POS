@@ -64,6 +64,7 @@ export function useAuth() {
 
         const profile = await fetchProfile(data.user.id)
         if (!profile) throw new Error('Profile not found.')
+        if (!profile.is_active) throw new Error('This account has been deactivated.')
 
         const branch = await fetchBranchDetails(profile.branch_id)
         if (!branch) throw new Error('Active branch not found.')

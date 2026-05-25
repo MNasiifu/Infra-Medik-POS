@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Box, Button, Chip, FormControl, IconButton, InputAdornment,
-  InputLabel, MenuItem, Select, Stack, TextField, Tooltip, Typography,
+  Box, Button, Chip, FormControl, IconButton,
+  InputLabel, MenuItem, Select, Stack, Tooltip, Typography,
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { AppDataGrid } from '@/components/molecules/AppDataGrid'
-import SearchIcon   from '@mui/icons-material/Search'
+import { SearchTextField } from '@/components/molecules/SearchTextField'
 import AddIcon      from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 
@@ -138,19 +138,11 @@ export function ReturnTable({ onNewReturn }: Props) {
   return (
     <Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
-        <TextField
+        <SearchTextField
           placeholder="Search by return #, sale #, or customer…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          size="small"
           sx={{ flex: 1, maxWidth: { sm: 360 } }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          }}
         />
         <FormControl size="small" sx={{ minWidth: 150 }}>
           <InputLabel>Status</InputLabel>

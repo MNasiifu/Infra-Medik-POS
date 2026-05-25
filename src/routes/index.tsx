@@ -137,6 +137,22 @@ const UserPage = page(
   () => import("@/pages/user/UserPage"),
   "UserPage",
 );
+const CategoriesPage = page(
+  () => import("@/pages/Catalog/CategoriesPage"),
+  "CategoriesPage",
+);
+const CountriesPage = page(
+  () => import("@/pages/Catalog/CountriesPage"),
+  "CountriesPage",
+);
+const ManufacturersPage = page(
+  () => import("@/pages/Catalog/ManufacturersPage"),
+  "ManufacturersPage",
+);
+const SuppliersPage = page(
+  () => import("@/pages/Catalog/SuppliersPage"),
+  "SuppliersPage",
+);
 
 // ─── Suspense fallback ────────────────────────────────────────
 
@@ -238,6 +254,42 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <MySummaryPage />
+              </S>
+            ),
+          },
+          {
+            path: "/catalog",
+            element: <Navigate to="/catalog/categories" replace />,
+          },
+          {
+            path: "/catalog/categories",
+            element: (
+              <S>
+                <CategoriesPage />
+              </S>
+            ),
+          },
+          {
+            path: "/catalog/countries",
+            element: (
+              <S>
+                <CountriesPage />
+              </S>
+            ),
+          },
+          {
+            path: "/catalog/manufacturers",
+            element: (
+              <S>
+                <ManufacturersPage />
+              </S>
+            ),
+          },
+          {
+            path: "/catalog/suppliers",
+            element: (
+              <S>
+                <SuppliersPage />
               </S>
             ),
           },

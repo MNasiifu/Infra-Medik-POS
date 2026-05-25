@@ -16,6 +16,7 @@ import {
   useCompleteStockTake,
 } from '@/hooks/inventory/useStockTakes'
 import { useStockBatches } from '@/hooks/inventory/useInventory'
+import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal'
 import { formatDate }      from '@/lib/formatters'
 import type { StockTakeItemWithDetails } from '@/services/stockTakeService'
 import type { StockTakeStatus }          from '@/types/database.types'
@@ -36,6 +37,7 @@ export function StockTakeDetail() {
   const complete     = useCompleteStockTake()
 
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<StockTakeItemWithDetails | null>(null)
 
   if (isLoading || !stockTake) {
     return <Typography color="text.secondary">Loading…</Typography>
@@ -54,6 +56,14 @@ export function StockTakeDetail() {
       batch_id:        batch.id,
       system_quantity: batch.quantity_remaining,
     }, { onSuccess: () => setSelectedBatchId(null) })
+  }
+
+  const handleDeleteConfirm = () => {
+    if (deleteConfirm) {
+      removeItem.mutate(deleteConfirm.id, {
+        onSuccess: () => setDeleteConfirm(null),
+      })
+    }
   }
 
   const handleComplete = () => {
@@ -153,7 +163,7 @@ export function StockTakeDetail() {
                 item={item}
                 editable={isEditable}
                 onUpdate={(qty, notes) => updateCount.mutate({ itemId: item.id, countedQuantity: qty, notes })}
-                onRemove={() => removeItem.mutate(item.id)}
+                onRemove={() => setDeleteConfirm(item)}
               />
             ))}
           </TableBody>
@@ -182,6 +192,19 @@ export function StockTakeDetail() {
           </Button>
         </Box>
       )}
+
+      {/* Delete confirmation modal */}
+      <DeleteConfirmationModal
+        open={!!deleteConfirm}
+        title="Remove item from stock take?"
+        itemName={deleteConfirm ? deleteConfirm.products?.name ?? 'Item' : ''}
+        description="You are about to remove"
+        warningMessage="This will discard the count for this batch. This action cannot be undone."
+        isPending={removeItem.isPending}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        confirmButtonText="Remove"
+      />
     </Box>
   )
 }

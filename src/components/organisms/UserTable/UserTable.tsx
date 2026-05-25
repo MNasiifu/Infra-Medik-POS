@@ -1,21 +1,24 @@
 import { useState, useMemo } from 'react'
 import {
-  Box, Button, Chip, FormControl, IconButton, InputAdornment,
+  Box, Button, Chip, FormControl, IconButton,
   InputLabel, MenuItem, Select, Stack, Switch, FormControlLabel,
-  TextField, Tooltip, Typography,
+  Tooltip, Typography,
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { AppDataGrid } from '@/components/molecules/AppDataGrid'
-import SearchIcon    from '@mui/icons-material/Search'
-import EditIcon      from '@mui/icons-material/Edit'
-import AddIcon       from '@mui/icons-material/Add'
-import ToggleOnIcon  from '@mui/icons-material/ToggleOn'
-import ToggleOffIcon from '@mui/icons-material/ToggleOff'
+import { SearchTextField } from '@/components/molecules/SearchTextField'
+import EditIcon          from '@mui/icons-material/Edit'
+import AddIcon           from '@mui/icons-material/Add'
+import ToggleOnIcon      from '@mui/icons-material/ToggleOn'
+import ToggleOffIcon     from '@mui/icons-material/ToggleOff'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 
-import { useUsers }                          from '@/hooks/users/useUsers'
-import { useToggleUserActive }               from '@/hooks/users/useUserMutations'
-import { UserForm, CredentialsDialog }       from '@/components/organisms/UserForm/UserForm'
-import { ToggleUserModal }                   from '@/components/organisms/UserTable/ToggleUserModal'
+import { useAuth }                             from '@/hooks/auth/useAuth'
+import { useUsers }                            from '@/hooks/users/useUsers'
+import { useToggleUserActive, useDeleteUser }  from '@/hooks/users/useUserMutations'
+import { UserForm, CredentialsDialog }         from '@/components/organisms/UserForm/UserForm'
+import { ToggleUserModal }                     from '@/components/organisms/UserTable/ToggleUserModal'
+import { DeleteUserModal }                     from '@/components/organisms/UserTable/DeleteUserModal'
 import { formatDate, formatDateTime }        from '@/lib/formatters'
 import type { UserWithBranch }               from '@/services/userService'
 import type { CreateUserResult }             from '@/services/userService'
@@ -46,7 +49,9 @@ export function UserTable() {
   const [editing,      setEditing]      = useState<Profile | undefined>()
   const [credentials,  setCredentials]  = useState<CreatedCredentials | null>(null)
   const [toggleTarget, setToggleTarget] = useState<UserWithBranch | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<UserWithBranch | null>(null)
 
+  const { user: currentUser } = useAuth()
   const { data: users = [], isLoading } = useUsers({
     search,
     role:         roleFilter || undefined,
@@ -54,6 +59,7 @@ export function UserTable() {
   })
 
   const toggleActive = useToggleUserActive()
+  const deleteUser   = useDeleteUser()
 
   const columns: GridColDef<UserWithBranch>[] = useMemo(() => [
     {
@@ -128,37 +134,55 @@ export function UserTable() {
     {
       field: 'actions',
       headerName: '',
-      width: 90,
+      width: 120,
       sortable: false,
-      renderCell: ({ row }: GridRenderCellParams<UserWithBranch>) => (
-        <Box display="flex" gap={0.25}>
-          <Tooltip title="Edit" arrow>
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation()
-                setEditing(row)
-                setDialogOpen(true)
-              }}
+      renderCell: ({ row }: GridRenderCellParams<UserWithBranch>) => {
+        const isSelf = row.id === currentUser?.id
+        return (
+          <Box display="flex" gap={0.25}>
+            <Tooltip title="Edit" arrow>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setEditing(row)
+                  setDialogOpen(true)
+                }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={row.is_active ? 'Deactivate' : 'Activate'} arrow>
+              <IconButton
+                size="small"
+                color={row.is_active ? 'warning' : 'success'}
+                onClick={(e) => { e.stopPropagation(); setToggleTarget(row) }}
+              >
+                {row.is_active
+                  ? <ToggleOffIcon fontSize="small" />
+                  : <ToggleOnIcon  fontSize="small" />}
+              </IconButton>
+            </Tooltip>
+            <Tooltip
+              title={isSelf ? 'You cannot remove your own account' : 'Remove account'}
+              arrow
             >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={row.is_active ? 'Deactivate' : 'Activate'} arrow>
-            <IconButton
-              size="small"
-              color={row.is_active ? 'warning' : 'success'}
-              onClick={(e) => { e.stopPropagation(); setToggleTarget(row) }}
-            >
-              {row.is_active
-                ? <ToggleOffIcon fontSize="small" />
-                : <ToggleOnIcon  fontSize="small" />}
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
+              <span>
+                <IconButton
+                  size="small"
+                  color="error"
+                  disabled={isSelf}
+                  onClick={(e) => { e.stopPropagation(); setDeleteTarget(row) }}
+                >
+                  <DeleteOutlineIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </Box>
+        )
+      },
     },
-  ], [toggleActive])
+  ], [currentUser?.id])
 
   const handleCreated = (result: CreateUserResult & { email: string; full_name: string }) => {
     setCredentials(result)
@@ -174,19 +198,11 @@ export function UserTable() {
         alignItems={{ xs: 'stretch', sm: 'center' }}
         flexWrap="wrap"
       >
-        <TextField
+        <SearchTextField
           placeholder="Search by name or email…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          size="small"
           sx={{ flex: 1, minWidth: 200, maxWidth: { sm: 340 } }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          }}
         />
 
         <FormControl size="small" sx={{ minWidth: 140 }}>
@@ -238,6 +254,21 @@ export function UserTable() {
         onClose={() => setDialogOpen(false)}
         existing={editing}
         onCreated={handleCreated}
+      />
+
+      {/* ── Remove account confirmation modal ──────────── */}
+      <DeleteUserModal
+        open={!!deleteTarget}
+        user={deleteTarget}
+        isPending={deleteUser.isPending}
+        onConfirm={(confirmedEmail) => {
+          if (!deleteTarget) return
+          deleteUser.mutate(
+            { id: deleteTarget.id, email: confirmedEmail },
+            { onSettled: () => setDeleteTarget(null) },
+          )
+        }}
+        onClose={() => setDeleteTarget(null)}
       />
 
       {/* ── Toggle active confirmation modal ─────────────── */}

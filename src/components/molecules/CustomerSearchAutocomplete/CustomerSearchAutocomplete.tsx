@@ -2,6 +2,7 @@ import { useState } from 'react'
 import {
   Autocomplete, Box, CircularProgress, TextField, Typography,
 } from '@mui/material'
+import { getSearchTextFieldInputProps } from '@/components/molecules/SearchTextField'
 import { useCustomerSearch } from '@/hooks/customers/useCustomers'
 import type { Customer } from '@/types/database.types'
 
@@ -43,15 +44,15 @@ export function CustomerSearchAutocomplete({
           placeholder={placeholder}
           error={error}
           helperText={helperText}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {isFetching && <CircularProgress size={14} />}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}
+          InputProps={getSearchTextFieldInputProps({
+            value: query,
+            onClear: () => {
+              setQuery('')
+              onChange(null)
+            },
+            inputProps: params.InputProps,
+            endAdornment: isFetching ? <CircularProgress size={14} /> : undefined,
+          })}
         />
       )}
       renderOption={(props, option) => (

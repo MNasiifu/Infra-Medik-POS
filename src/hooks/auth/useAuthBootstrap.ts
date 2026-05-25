@@ -30,6 +30,7 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
     .from('profiles')
     .select('*')
     .eq('id', userId)
+    .is('deleted_at', null)
     .single()
   if (error) {
     console.error('[Auth] fetchProfile error:', error.message)

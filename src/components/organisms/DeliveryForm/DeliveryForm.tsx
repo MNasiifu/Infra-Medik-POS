@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import {
   Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, FormControl, Grid, IconButton, InputAdornment, InputLabel,
+  Divider, FormControl, Grid, IconButton, InputLabel,
   MenuItem, Select, Stack, TextField, Typography,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
-import SearchIcon from '@mui/icons-material/Search'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { zodResolver }                         from '@hookform/resolvers/zod'
 
 import { deliveryOrderSchema, type DeliveryOrderFormValues } from '@/lib/zod-schemas/customer.schemas'
 import { CustomerSearchAutocomplete } from '@/components/molecules/CustomerSearchAutocomplete/CustomerSearchAutocomplete'
+import { SearchTextField } from '@/components/molecules/SearchTextField'
+import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal'
 import { useCreateDelivery }          from '@/hooks/deliveries/useDeliveryMutations'
 import { useAuthStore }               from '@/store/authStore'
 import { useProductSearch }           from '@/hooks/pos/useProductSearch'
@@ -28,19 +29,11 @@ function ProductItemSearch({ onAdd }: { onAdd: (item: DeliveryOrderFormValues['i
 
   return (
     <Box>
-      <TextField
+      <SearchTextField
         placeholder="Search product to add…"
-        size="small"
         fullWidth
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon fontSize="small" color="action" />
-            </InputAdornment>
-          ),
-        }}
       />
       {results.length > 0 && query.length >= 2 && (
         <Box
@@ -99,6 +92,7 @@ export function DeliveryForm({ open, onClose }: Props) {
   const profile   = useAuthStore((s) => s.profile)
   const branchId  = profile?.branch_id ?? ''
   const tellerId  = useAuthStore((s) => s.user?.id) ?? ''
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
 
   const {
     control, handleSubmit, setValue, watch,
@@ -319,7 +313,7 @@ export function DeliveryForm({ open, onClose }: Props) {
                     <Typography variant="body2" fontFamily="monospace" fontWeight={600} minWidth={90} textAlign="right">
                       {formatUGX(items[i]?.quantity ? Number(items[i].quantity) * items[i].unit_price : field.unit_price)}
                     </Typography>
-                    <IconButton size="small" color="error" onClick={() => remove(i)}>
+                    <IconButton size="small" color="error" onClick={() => setDeleteConfirm(i)}>
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Box>
@@ -335,6 +329,24 @@ export function DeliveryForm({ open, onClose }: Props) {
           </Grid>
         </Grid>
       </DialogContent>
+
+      {/* Delete confirmation modal */}
+      <DeleteConfirmationModal
+        open={deleteConfirm !== null}
+        title="Remove item from delivery?"
+        itemName={deleteConfirm !== null ? `${items[deleteConfirm]?.product_name} (${items[deleteConfirm]?.unit_name})` : ''}
+        description="You are about to remove"
+        warningMessage="This item will be removed from the delivery order."
+        isPending={false}
+        onConfirm={() => {
+          if (deleteConfirm !== null) {
+            remove(deleteConfirm)
+            setDeleteConfirm(null)
+          }
+        }}
+        onClose={() => setDeleteConfirm(null)}
+        confirmButtonText="Remove"
+      />
 
       <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
         <Button variant="outlined" onClick={handleClose} disabled={isSubmitting}>Cancel</Button>

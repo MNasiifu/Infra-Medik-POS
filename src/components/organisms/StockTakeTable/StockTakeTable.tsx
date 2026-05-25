@@ -6,6 +6,7 @@ import {
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { AppDataGrid } from '@/components/molecules/AppDataGrid'
+import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal'
 import AddIcon        from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import DeleteIcon     from '@mui/icons-material/Delete'
@@ -30,11 +31,20 @@ export function StockTakeTable() {
 
   const [createOpen, setCreateOpen] = useState(false)
   const [notes, setNotes]           = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState<StockTakeWithDetails | null>(null)
 
   const handleCreate = () => {
     createMutation.mutate(notes || undefined, {
       onSuccess: () => { setCreateOpen(false); setNotes('') },
     })
+  }
+
+  const handleDeleteConfirm = () => {
+    if (deleteConfirm) {
+      deleteMutation.mutate(deleteConfirm.id, {
+        onSuccess: () => setDeleteConfirm(null),
+      })
+    }
   }
 
   const columns: GridColDef<StockTakeWithDetails>[] = useMemo(() => [
@@ -102,7 +112,7 @@ export function StockTakeTable() {
               <IconButton
                 size="small"
                 color="error"
-                onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(row.id) }}
+                onClick={(e) => { e.stopPropagation(); setDeleteConfirm(row) }}
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
@@ -159,6 +169,19 @@ export function StockTakeTable() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Delete confirmation modal */}
+      <DeleteConfirmationModal
+        open={!!deleteConfirm}
+        title="Delete stock take?"
+        itemName={deleteConfirm ? `Stock Take (${formatDate(deleteConfirm.started_at)})` : ''}
+        description="You are about to permanently delete this"
+        warningMessage="All recorded counts and data for this stock take will be lost. This action cannot be undone."
+        isPending={deleteMutation.isPending}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        confirmButtonText="Delete"
+      />
     </Box>
   )
 }

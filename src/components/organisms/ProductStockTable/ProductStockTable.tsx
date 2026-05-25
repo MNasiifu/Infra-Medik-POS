@@ -6,7 +6,6 @@ import {
   Tooltip,
   TextField,
   MenuItem,
-  InputAdornment,
   Stack,
   Button,
   Typography,
@@ -26,12 +25,12 @@ import {
   type GridColDef,
   type GridRenderCellParams,
 } from "@mui/x-data-grid";
-import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { useNavigate } from "react-router-dom";
 
+import { SearchTextField } from "@/components/molecules/SearchTextField";
 import { useProductStock } from "@/hooks/inventory/useInventory";
 import { useProductBatches } from "@/hooks/inventory/useInventory";
 import { useCategories, useSuppliers } from "@/hooks/shared/useReferenceData";
@@ -264,7 +263,7 @@ export function ProductStockTable() {
         field: "product_name",
         headerName: "Product Name",
         flex: 1.5,
-        minWidth: 220,
+        minWidth: 120,
         renderCell: ({ row }: GridRenderCellParams<ProductStockAggregate>) => (
           <Box py={0.5}>
             <Typography
@@ -316,7 +315,7 @@ export function ProductStockTable() {
       {
         field: "category_name",
         headerName: "Category",
-        width: 140,
+        width: 240,
         renderCell: ({ value }: GridRenderCellParams) => (
           <Typography
             variant="body2"
@@ -329,7 +328,7 @@ export function ProductStockTable() {
       {
         field: "supplier_name",
         headerName: "Supplier",
-        width: 140,
+        width: 200,
         renderCell: ({ value }: GridRenderCellParams) => (
           <Typography
             variant="body2"
@@ -406,19 +405,11 @@ export function ProductStockTable() {
         mb={2}
         alignItems="flex-start"
       >
-        <TextField
+        <SearchTextField
           placeholder="Search by product name or generic name…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          size="small"
           sx={{ flex: 1, maxWidth: { sm: 380 } }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          }}
         />
         <Button
           variant={showFilters ? "contained" : "outlined"}

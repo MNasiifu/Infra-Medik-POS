@@ -33,6 +33,7 @@ export const userService = {
     let query = db
       .from('profiles')
       .select('*, branches(name)')
+      .is('deleted_at', null)
       .order('full_name')
 
     if (!filters.showInactive) query = query.eq('is_active', true)
@@ -72,6 +73,16 @@ export const userService = {
       .update({ is_active: isActive })
       .eq('id', id)
     if (error) throw error
+  },
+
+  async deleteUser(userId: string, email: string): Promise<void> {
+    const { data, error } = await supabase.functions.invoke('delete-user', {
+      body: { user_id: userId, email },
+    })
+    if (error) throw new Error(error.message)
+    if (!(data as { success?: boolean })?.success) {
+      throw new Error((data as { error?: string })?.error ?? 'Failed to remove account')
+    }
   },
 
   async createUser(payload: CreateUserPayload): Promise<CreateUserResult> {

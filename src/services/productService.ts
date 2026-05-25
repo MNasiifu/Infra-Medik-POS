@@ -240,7 +240,11 @@ export const productService = {
   },
 
   async getCountries(): Promise<Country[]> {
-    const { data, error } = await db.from('countries').select('*').order('name')
+    const { data, error } = await db
+      .from('countries')
+      .select('*')
+      .eq('is_active', true)
+      .order('name')
     if (error) throw error
     return data
   },

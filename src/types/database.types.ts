@@ -66,6 +66,7 @@ export type AuditAction =
   | "complete_sale"
   | "adjust_stock"
   | "create_user"
+  | "delete_user"
   | "change_role"
   | "close_reconciliation"
   | "complete_stock_take";
@@ -86,6 +87,7 @@ export interface Country {
   id: string;
   name: string;
   code: string | null;
+  is_active: boolean;
 }
 
 export interface Category {
@@ -130,6 +132,7 @@ export interface Profile {
   must_change_password: boolean;
   is_active: boolean;
   last_login_at: string | null;
+  deleted_at: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -796,6 +799,10 @@ export type Database = {
           p_role: UserRole;
           p_branch_id: string;
         };
+        Returns: void;
+      };
+      admin_soft_delete_user: {
+        Args: { p_user_id: string; p_email: string };
         Returns: void;
       };
       search_products: {

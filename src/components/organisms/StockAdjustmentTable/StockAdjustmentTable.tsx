@@ -1,15 +1,15 @@
 import { useState, useMemo } from 'react'
 import {
-  Box, Chip, TextField, MenuItem, Typography,
-  InputAdornment, Stack, Button, FormControl,
+  Box, Chip, MenuItem, Typography,
+  Stack, Button, FormControl,
   InputLabel, Select,
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { AppDataGrid } from '@/components/molecules/AppDataGrid'
-import SearchIcon from '@mui/icons-material/Search'
 import AddIcon    from '@mui/icons-material/Add'
 
 import { StockAdjustmentForm }   from '@/components/organisms/StockAdjustmentForm/StockAdjustmentForm'
+import { SearchTextField }       from '@/components/molecules/SearchTextField'
 import { useStockAdjustments }   from '@/hooks/inventory/useInventory'
 import { formatDate } from '@/lib/formatters'
 import { ADJUSTMENT_LABELS }     from '@/lib/zod-schemas/inventory.schemas'
@@ -129,19 +129,11 @@ export function StockAdjustmentTable() {
 
       {/* Toolbar */}
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
-        <TextField
+        <SearchTextField
           placeholder="Search by product, batch, reason…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          size="small"
           sx={{ flex: 1, maxWidth: { sm: 380 } }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          }}
         />
         <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel>Type</InputLabel>

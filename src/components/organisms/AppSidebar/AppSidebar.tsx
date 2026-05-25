@@ -37,6 +37,11 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import CategoryIcon from "@mui/icons-material/Category";
+import FactoryIcon from "@mui/icons-material/Factory";
+import BusinessIcon from "@mui/icons-material/Business";
+import PublicIcon from "@mui/icons-material/Public";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -149,6 +154,43 @@ const NAV: NavItem[] = [
     icon: <PeopleIcon />,
     roles: ["admin", "manager", "teller"],
   },
+  {
+    id: "catalog",
+    label: "Catalog",
+    path: "/catalog",
+    icon: <MenuBookIcon />,
+    roles: ["admin", "manager", "teller"],
+    children: [
+      {
+        id: "catalog-categories",
+        label: "Categories",
+        path: "/catalog/categories",
+        icon: <CategoryIcon />,
+        roles: ["admin", "manager", "teller"],
+      },
+      {
+        id: "catalog-manufacturers",
+        label: "Manufacturers",
+        path: "/catalog/manufacturers",
+        icon: <FactoryIcon />,
+        roles: ["admin", "manager", "teller"],
+      },
+      {
+        id: "catalog-suppliers",
+        label: "Suppliers",
+        path: "/catalog/suppliers",
+        icon: <BusinessIcon />,
+        roles: ["admin", "manager", "teller"],
+      },
+      {
+        id: "catalog-countries",
+        label: "Countries",
+        path: "/catalog/countries",
+        icon: <PublicIcon />,
+        roles: ["admin", "manager", "teller"],
+      },
+    ],
+  },
   // {
   //   id: "deliveries",
   //   label: "Delivery Orders",
@@ -242,6 +284,7 @@ export function AppSidebar({ mobileOpen, onMobileClose }: Props) {
   const [openGroups, setOpenGroups] = useState<string[]>([
     "inventory",
     "reports",
+    "catalog",
   ]);
   const navigate = useNavigate();
   const location = useLocation();

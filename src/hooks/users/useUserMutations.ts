@@ -37,6 +37,18 @@ export function useUpdateUser() {
   })
 }
 
+export function useDeleteUser() {
+  const qc = useQueryClient()
+  return useMutation<void, Error, { id: string; email: string }>({
+    mutationFn: ({ id, email }) => userService.deleteUser(id, email),
+    onSuccess: () => {
+      invalidate(qc)
+      notify.success('Account removed successfully')
+    },
+    onError: (e) => notify.error(e.message),
+  })
+}
+
 export function useToggleUserActive() {
   const qc = useQueryClient()
   return useMutation<void, Error, { id: string; isActive: boolean }>({

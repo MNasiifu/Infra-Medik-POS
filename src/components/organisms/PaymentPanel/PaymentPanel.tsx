@@ -19,6 +19,7 @@ import LocalAtmIcon from "@mui/icons-material/LocalAtm";
 import CellTowerIcon from "@mui/icons-material/CellTower";
 
 import { formatUGX } from "@/lib/formatters";
+import { DeleteConfirmationModal } from "@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal";
 import { notify } from "@/store/notificationStore";
 import type { PaymentEntry } from "@/hooks/pos/useCompleteSale";
 import type { PaymentMethod } from "@/types/database.types";
@@ -72,6 +73,7 @@ export function PaymentPanel({
   const [primaryReference, setPrimaryReference] = useState<string>("");
   const [splitLines, setSplitLines] = useState<PaymentLine[]>([]);
   const [cashReceived, setCashReceived] = useState<number>(grandTotal);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   // Calculate primary payment amount
   const primaryAmountValue = parseFloat(primaryAmount) || 0;
@@ -484,7 +486,7 @@ export function PaymentPanel({
                       <IconButton
                         size="small"
                         color="error"
-                        onClick={() => removeSplitLine(line.id)}
+                        onClick={() => setDeleteConfirm(line.id)}
                         disabled={isSubmitting}
                       >
                         <DeleteIcon fontSize="small" />

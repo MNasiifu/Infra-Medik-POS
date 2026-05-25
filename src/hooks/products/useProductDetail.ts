@@ -21,7 +21,7 @@ export function useProductDetail() {
   const [modal, setModal] = useState<ModalState>({ kind: 'none' })
 
   // ── Navigation ──────────────────────────────────────────────────
-  const goBack = useCallback(() => navigate('/products'), [navigate])
+  const goBack = useCallback(() => navigate(-1), [navigate]);
   const goEdit = useCallback(
     () => navigate(`/products/${id}/edit`),
     [navigate, id],

@@ -10,6 +10,7 @@ import AddIcon    from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 import { FormSelectField } from '@/components/molecules/FormField/FormField'
+import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal'
 import { useSuppliers }    from '@/hooks/shared/useReferenceData'
 import { useProducts }     from '@/hooks/products/useProducts'
 import { useCreatePurchaseOrder } from '@/hooks/inventory/usePurchaseOrders'
@@ -45,6 +46,7 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
   const [expectedDate, setExpectedDate] = useState('')
   const [notes, setNotes]               = useState('')
   const [items, setItems]               = useState<LineItem[]>([])
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
 
   // Add item state
   const [selectedProduct, setSelectedProduct] = useState<ProductWithDetails | null>(null)
@@ -221,7 +223,7 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
                         {formatUGX(item.quantity_ordered * item.cost_price_per_unit)}
                       </TableCell>
                       <TableCell align="center">
-                        <IconButton size="small" color="error" onClick={() => removeItem(item._id)}>
+                        <IconButton size="small" color="error" onClick={() => setDeleteConfirm(i)}>
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </TableCell>
@@ -242,6 +244,24 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
           )}
         </Stack>
       </DialogContent>
+
+      {/* Delete confirmation modal */}
+      <DeleteConfirmationModal
+        open={deleteConfirm !== null}
+        title="Remove item from purchase order?"
+        itemName={deleteConfirm !== null ? `${items[deleteConfirm]?.product_name} (${items[deleteConfirm]?.unit_name})` : ''}
+        description="You are about to remove"
+        warningMessage="This item will be removed from the purchase order."
+        isPending={false}
+        onConfirm={() => {
+          if (deleteConfirm !== null) {
+            removeItem(items[deleteConfirm]._id)
+            setDeleteConfirm(null)
+          }
+        }}
+        onClose={() => setDeleteConfirm(null)}
+        confirmButtonText="Remove"
+      />
 
       <DialogActions sx={{ px: 3, py: 2 }}>
         <Button onClick={onClose} disabled={createPO.isPending}>Cancel</Button>

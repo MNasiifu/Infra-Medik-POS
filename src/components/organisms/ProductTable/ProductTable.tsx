@@ -5,9 +5,7 @@ import {
   Chip,
   IconButton,
   Tooltip,
-  TextField,
   MenuItem,
-  InputAdornment,
   Stack,
   Button,
   Typography,
@@ -23,7 +21,7 @@ import {
 } from "@mui/material";
 import { type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid";
 import { AppDataGrid } from "@/components/molecules/AppDataGrid";
-import SearchIcon from "@mui/icons-material/Search";
+import { SearchTextField } from "@/components/molecules/SearchTextField";
 import EditIcon from "@mui/icons-material/Edit";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import ToggleOffIcon from "@mui/icons-material/ToggleOff";
@@ -447,19 +445,11 @@ export function ProductTable() {
         mb={2}
         alignItems="flex-start"
       >
-        <TextField
+        <SearchTextField
           placeholder="Search by name, generic name, or barcode…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          size="small"
           sx={{ flex: 1, maxWidth: { sm: 380 } }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          }}
         />
 
         <Button

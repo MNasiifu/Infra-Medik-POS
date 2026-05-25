@@ -1,12 +1,12 @@
 import { useState, useMemo, useCallback } from 'react'
 import {
-  Box, Chip, IconButton, Tooltip, TextField, MenuItem,
-  InputAdornment, Stack, Button, Typography,
+  Box, Chip, IconButton, Tooltip, MenuItem,
+  Stack, Button, Typography,
   Select, FormControl, InputLabel, Switch, FormControlLabel,
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { AppDataGrid } from '@/components/molecules/AppDataGrid'
-import SearchIcon      from '@mui/icons-material/Search'
+import { SearchTextField } from '@/components/molecules/SearchTextField'
 import EditIcon        from '@mui/icons-material/Edit'
 import FilterListIcon  from '@mui/icons-material/FilterList'
 
@@ -164,19 +164,11 @@ export function StockBatchTable() {
 
       {/* Toolbar */}
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
-        <TextField
+        <SearchTextField
           placeholder="Search by product, batch number…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          size="small"
           sx={{ flex: 1, maxWidth: { sm: 380 } }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          }}
         />
         <Button
           variant={showFilters ? 'contained' : 'outlined'}

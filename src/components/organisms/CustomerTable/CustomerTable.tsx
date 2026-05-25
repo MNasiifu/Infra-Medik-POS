@@ -1,11 +1,10 @@
 import { useState, useMemo } from 'react'
 import {
-  Box, Button, Chip, IconButton, InputAdornment, Stack,
-  Switch, FormControlLabel, TextField, Tooltip, Typography,
+  Box, Button, Chip, IconButton, Stack,
+  Switch, FormControlLabel, Tooltip, Typography,
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { AppDataGrid } from '@/components/molecules/AppDataGrid'
-import SearchIcon   from '@mui/icons-material/Search'
 import EditIcon     from '@mui/icons-material/Edit'
 import DeleteIcon   from '@mui/icons-material/Delete'
 import AddIcon      from '@mui/icons-material/Add'
@@ -15,6 +14,7 @@ import ToggleOffIcon from '@mui/icons-material/ToggleOff'
 import { useCustomers }                                           from '@/hooks/customers/useCustomers'
 import { useDeleteCustomer, useToggleCustomerActive }             from '@/hooks/customers/useCustomerMutations'
 import { CustomerForm }                                           from '@/components/organisms/CustomerForm/CustomerForm'
+import { SearchTextField }                                        from '@/components/molecules/SearchTextField'
 import { formatDate }                                             from '@/lib/formatters'
 import type { Customer } from '@/types/database.types'
 
@@ -128,19 +128,11 @@ export function CustomerTable() {
     <Box>
       {/* Toolbar */}
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
-        <TextField
+        <SearchTextField
           placeholder="Search by name, phone, or email…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          size="small"
           sx={{ flex: 1, maxWidth: { sm: 380 } }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          }}
         />
         <FormControlLabel
           control={<Switch checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} size="small" />}

@@ -141,6 +141,7 @@ export const reportService = {
       .select('id, full_name')
       .in('role', ['admin', 'manager', 'teller'])
       .eq('is_active', true)
+      .is('deleted_at', null)
       .order('full_name')
     if (error) throw error
     return (data ?? []) as TellerOption[]

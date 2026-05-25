@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import {
   Alert, Box, Button, Chip, CircularProgress, Divider,
-  Drawer, IconButton, InputAdornment, Stack,
+  Drawer, IconButton, Stack,
   Table, TableBody, TableCell, TableHead, TableRow,
-  TextField, Tooltip, Typography,
+  Tooltip, Typography,
 } from '@mui/material'
-import SearchIcon       from '@mui/icons-material/Search'
 import CloseIcon        from '@mui/icons-material/Close'
 import BlockIcon        from '@mui/icons-material/Block'
 import UndoIcon         from '@mui/icons-material/Undo'
 
+import { SearchTextField }   from '@/components/molecules/SearchTextField'
 import { useSales }          from '@/hooks/sales/useSales'
 import { usePermissions }    from '@/hooks/auth/usePermissions'
 import { VoidSaleDialog }    from '@/components/organisms/VoidSaleDialog/VoidSaleDialog'
@@ -67,20 +67,12 @@ export function SaleSearchPanel({ open, onClose, onSelectForReturn }: Props) {
 
         {/* Search field */}
         <Box px={2.5} py={2}>
-          <TextField
+          <SearchTextField
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by sale #, customer name, or phone…"
             fullWidth
-            size="small"
             autoFocus
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" color="action" />
-                </InputAdornment>
-              ),
-            }}
           />
         </Box>
 
