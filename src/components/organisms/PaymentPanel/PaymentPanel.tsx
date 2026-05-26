@@ -588,6 +588,30 @@ export function PaymentPanel({
             ? "Processing…"
             : `Confirm Sale · ${formatUGX(grandTotal)}`}
         </Button>
+
+        {/* Delete confirmation modal */}
+        <DeleteConfirmationModal
+          open={deleteConfirm !== null}
+          title="Remove payment line?"
+          itemName={
+            deleteConfirm
+              ? splitLines.find((l) => l.id === deleteConfirm)?.method === "cash"
+                ? "Cash payment"
+                : "Mobile money payment"
+              : ""
+          }
+          description="You are about to remove"
+          warningMessage="This payment method will be removed from the split payment."
+          isPending={false}
+          onConfirm={() => {
+            if (deleteConfirm) {
+              removeSplitLine(deleteConfirm);
+              setDeleteConfirm(null);
+            }
+          }}
+          onClose={() => setDeleteConfirm(null)}
+          confirmButtonText="Remove"
+        />
       </Box>
     </Stack>
   );

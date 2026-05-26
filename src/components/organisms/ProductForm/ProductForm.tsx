@@ -377,7 +377,7 @@ function CreateProductForm() {
         manufacturer_id: values.product.manufacturer_id ?? null,
         country_id:      values.product.country_id      ?? null,
         supplier_id:     values.product.supplier_id     ?? null,
-        dosage_form:     values.product.dosage_form     ?? null,
+        dosage_form:     values.product.dosage_form ?? null,
         strength:        values.product.strength        ?? null,
         description:     values.product.description     ?? null,
         is_active:  true,

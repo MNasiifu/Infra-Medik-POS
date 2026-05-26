@@ -9,6 +9,7 @@ import QrCodeIcon   from '@mui/icons-material/QrCode'
 import CropFreeIcon from '@mui/icons-material/CropFree'
 
 import { BarcodeDisplay } from '@/components/molecules/BarcodeDisplay/BarcodeDisplay'
+import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal'
 import { useAddBarcode, useDeleteBarcode } from '@/hooks/products/useProductMutations'
 import { generateBarcodeValue } from '@/lib/barcode'
 import type { ProductBarcode } from '@/types/database.types'
@@ -198,27 +199,23 @@ export function BarcodeManager({ productId, barcodes, productName }: Props) {
       />
 
       {/* Delete confirmation */}
-      <Dialog open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} maxWidth="xs" fullWidth>
-        <DialogTitle>Remove barcode?</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            This barcode will no longer be recognised at the point of sale.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
-          <Button variant="outlined" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              deleteBarcode.mutate(deleteConfirm!)
-              setDeleteConfirm(null)
-            }}
-          >
-            Remove
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteConfirmationModal
+        open={!!deleteConfirm}
+        title="Remove barcode?"
+        itemName={deleteConfirm ? `${productName || 'Barcode'} - ${barcodes.find(b => b.id === deleteConfirm)?.barcode}` : ''}
+        description="You are about to remove"
+        warningMessage="This barcode will no longer be recognised at the point of sale."
+        isPending={deleteBarcode.isPending}
+        onConfirm={() => {
+          if (deleteConfirm) {
+            deleteBarcode.mutate(deleteConfirm, {
+              onSuccess: () => setDeleteConfirm(null),
+            })
+          }
+        }}
+        onClose={() => setDeleteConfirm(null)}
+        confirmButtonText="Remove"
+      />
     </Box>
   )
 }

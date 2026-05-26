@@ -15,6 +15,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver }         from '@hookform/resolvers/zod'
 
 import { productUnitSchema, type ProductUnitFormValues } from '@/lib/zod-schemas/product.schemas'
+import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal'
 import {
   useAddProductUnit, useUpdateProductUnit,
   useDeleteProductUnit, useSetDefaultUnit,
@@ -338,27 +339,23 @@ export function ProductUnitManager({ productId, units, isVatExempt }: Props) {
       />
 
       {/* Delete confirmation */}
-      <Dialog open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} maxWidth="xs" fullWidth>
-        <DialogTitle>Delete unit?</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            This cannot be undone. Historical sales data will be preserved.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
-          <Button variant="outlined" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              deleteUnit.mutate(deleteConfirm!)
-              setDeleteConfirm(null)
-            }}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteConfirmationModal
+        open={!!deleteConfirm}
+        title="Delete selling unit?"
+        itemName={deleteConfirm ?? ''}
+        description="You are about to delete this"
+        warningMessage="This cannot be undone. Historical sales data will be preserved."
+        isPending={deleteUnit.isPending}
+        onConfirm={() => {
+          if (deleteConfirm) {
+            deleteUnit.mutate(deleteConfirm, {
+              onSuccess: () => setDeleteConfirm(null),
+            })
+          }
+        }}
+        onClose={() => setDeleteConfirm(null)}
+        confirmButtonText="Delete"
+      />
     </Box>
   )
 }

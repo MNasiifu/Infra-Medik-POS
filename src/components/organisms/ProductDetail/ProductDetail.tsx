@@ -41,20 +41,50 @@ import type { DosageForm }           from '@/types/database.types'
 
 // ─── Dosage form colour map (mirrors ProductTable) ───────────────
 const DOSAGE_COLORS: Record<DosageForm, string> = {
-  tablet:      '#1565C0',
-  capsule:     '#6A1B9A',
-  syrup:       '#00838F',
-  suspension:  '#0277BD',
-  cream:       '#2E7D32',
-  ointment:    '#558B2F',
-  gel:         '#00695C',
-  injection:   '#C62828',
-  drops:       '#F57F17',
-  powder:      '#4E342E',
-  inhaler:     '#283593',
-  patch:       '#4527A0',
-  suppository: '#37474F',
-  other:       '#546E7A',
+  // --- Oral / Internal ---
+  tablet:                          '#1565C0', // deep blue
+  capsule:                         '#6A1B9A', // deep purple
+  syrup:                           '#00838F', // teal
+  suspension:                      '#0277BD', // light blue
+  powder:                          '#4E342E', // brown
+  inhaler:                         '#283593', // indigo
+  'herbal tea':                    '#558B2F', // olive green
+
+  // --- Injectable / Clinical ---
+  injection:                       '#C62828', // red
+  patch:                           '#4527A0', // violet
+  suppository:                     '#37474F', // blue grey
+  drops:                           '#F57F17', // amber
+
+  // --- Topical / Skin ---
+  cream:                           '#2E7D32', // green
+  ointment:                        '#33691E', // light green
+  gel:                             '#00695C', // dark teal
+  'lip balm':                      '#AD1457', // pink
+  'topical oil':                   '#E65100', // deep orange
+  'body butter':                   '#6D4C41', // warm brown
+  'topical liquid':                '#0288D1', // light blue
+  'topical cream':                 '#00897B', // teal green
+  'topical balm':                  '#BF360C', // deep red-orange
+  'liquid topical facial toner':   '#7B1FA2', // purple
+  'liquid exfoliating mask':       '#C2185B', // deep pink
+
+  // --- Dental / Oral Care ---
+  'dental foam':                   '#00796B', // teal
+
+  // --- Cleansing / Hair ---
+  'soap bar':                      '#1976D2', // blue
+  shampoo:                         '#0097A7', // cyan
+
+  // --- Beauty / Cosmetics ---
+  'make-up brush':                 '#880E4F', // dark pink
+  'make-up sponge':                '#E91E63', // pink
+
+  // --- Specialty ---
+  'Pre-lubricated latex condom':   '#455A64', // steel grey
+
+  // --- Fallback ---
+  other:                           '#546E7A', // blue grey
 }
 
 // ─── Reusable info row ───────────────────────────────────────────

@@ -22,7 +22,6 @@ interface DeleteConfirmationModalProps {
   onConfirm: () => void;
   onClose: () => void;
   confirmButtonText?: string;
-  isDangerous?: boolean;
 }
 
 /**
@@ -54,7 +53,6 @@ export function DeleteConfirmationModal({
   onConfirm,
   onClose,
   confirmButtonText = "Delete",
-  isDangerous = true,
 }: DeleteConfirmationModalProps) {
   return (
     <Dialog

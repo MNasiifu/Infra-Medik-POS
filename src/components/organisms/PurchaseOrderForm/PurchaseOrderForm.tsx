@@ -46,7 +46,9 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
   const [expectedDate, setExpectedDate] = useState('')
   const [notes, setNotes]               = useState('')
   const [items, setItems]               = useState<LineItem[]>([])
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
+
+  // ✅ Fix 1: type is string | null (matches LineItem._id)
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   // Add item state
   const [selectedProduct, setSelectedProduct] = useState<ProductWithDetails | null>(null)
@@ -78,6 +80,9 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
   }
 
   const subtotal = items.reduce((s, i) => s + i.quantity_ordered * i.cost_price_per_unit, 0)
+
+  // ✅ Fix 2: derive the pending item by _id instead of treating it as an index
+  const pendingDeleteItem = items.find((i) => i._id === deleteConfirm) ?? null
 
   const handleSubmit = () => {
     if (!branchId || !supplierId || items.length === 0) return
@@ -223,7 +228,8 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
                         {formatUGX(item.quantity_ordered * item.cost_price_per_unit)}
                       </TableCell>
                       <TableCell align="center">
-                        <IconButton size="small" color="error" onClick={() => setDeleteConfirm(i)}>
+                        {/* ✅ Fix 1 applied: item._id (string) into string | null state */}
+                        <IconButton size="small" color="error" onClick={() => setDeleteConfirm(item._id)}>
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </TableCell>
@@ -245,17 +251,17 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
         </Stack>
       </DialogContent>
 
-      {/* Delete confirmation modal */}
+      {/* ✅ Fix 2 applied: pendingDeleteItem derived via .find() — never undefined */}
       <DeleteConfirmationModal
         open={deleteConfirm !== null}
         title="Remove item from purchase order?"
-        itemName={deleteConfirm !== null ? `${items[deleteConfirm]?.product_name} (${items[deleteConfirm]?.unit_name})` : ''}
+        itemName={pendingDeleteItem ? `${pendingDeleteItem.product_name} (${pendingDeleteItem.unit_name})` : ''}
         description="You are about to remove"
         warningMessage="This item will be removed from the purchase order."
         isPending={false}
         onConfirm={() => {
           if (deleteConfirm !== null) {
-            removeItem(items[deleteConfirm]._id)
+            removeItem(deleteConfirm)
             setDeleteConfirm(null)
           }
         }}

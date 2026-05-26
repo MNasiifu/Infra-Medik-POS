@@ -5,6 +5,7 @@ import {
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { AppDataGrid } from '@/components/molecules/AppDataGrid'
+import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal'
 import EditIcon     from '@mui/icons-material/Edit'
 import DeleteIcon   from '@mui/icons-material/Delete'
 import AddIcon      from '@mui/icons-material/Add'
@@ -162,43 +163,24 @@ export function CustomerTable() {
         existing={editing}
       />
 
-      {/* Delete confirm */}
-      {deleteConfirm && (
-        <Box
-          position="fixed"
-          sx={{ inset: 0 }}
-          bgcolor="rgba(0,0,0,0.5)"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          zIndex={1400}
-          onClick={() => setDeleteConfirm(null)}
-        >
-          <Box
-            bgcolor="background.paper"
-            borderRadius={2}
-            p={3}
-            maxWidth={360}
-            width="100%"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Typography variant="h6" fontWeight={700} mb={1}>Delete customer?</Typography>
-            <Typography variant="body2" color="text.secondary" mb={3}>
-              "{deleteConfirm.full_name}" will be soft-deleted. Historical sales data is preserved.
-            </Typography>
-            <Stack direction="row" spacing={1} justifyContent="flex-end">
-              <Button variant="outlined" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => { deleteCustomer.mutate(deleteConfirm.id); setDeleteConfirm(null) }}
-              >
-                Delete
-              </Button>
-            </Stack>
-          </Box>
-        </Box>
-      )}
+      {/* Delete confirmation modal */}
+      <DeleteConfirmationModal
+        open={!!deleteConfirm}
+        title="Delete customer?"
+        itemName={deleteConfirm?.full_name ?? ''}
+        description="You are about to soft-delete"
+        warningMessage="Historical sales data for this customer will be preserved, but they will no longer appear in active customer lists."
+        isPending={deleteCustomer.isPending}
+        onConfirm={() => {
+          if (deleteConfirm) {
+            deleteCustomer.mutate(deleteConfirm.id, {
+              onSuccess: () => setDeleteConfirm(null),
+            })
+          }
+        }}
+        onClose={() => setDeleteConfirm(null)}
+        confirmButtonText="Delete"
+      />
     </Box>
   )
 }
