@@ -6,7 +6,6 @@ import {
   IconButton,
   Tooltip,
   MenuItem,
-  Stack,
   Button,
   Typography,
   Select,
@@ -39,6 +38,7 @@ import type { ProductWithDetails } from "@/services/productService";
 import type { DosageForm } from "@/types/database.types";
 import {DeleteProductModal} from "./DeleteProductModal";
 import { ToggleProductModal } from "./ToggleProductModal";
+import { ResponsiveStack, responsiveWidth } from "@/components/molecules/ResponsiveStack";
 
 const DOSAGE_COLORS: Record<DosageForm, string> = {
   // --- Oral / Internal ---
@@ -469,17 +469,12 @@ export function ProductTable() {
   return (
     <Box>
       {/* Toolbar */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={1.5}
-        mb={2}
-        alignItems="flex-start"
-      >
+      <ResponsiveStack spacing={1.5} mb={2}>
         <SearchTextField
           placeholder="Search by name, generic name, or barcode…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1, maxWidth: { sm: 380 } }}
+          sx={{ ...responsiveWidth(), flex: 1, maxWidth: { sm: 380 } }}
         />
 
         <Button
@@ -487,7 +482,7 @@ export function ProductTable() {
           size="small"
           startIcon={<FilterListIcon />}
           onClick={() => setShowFilters((v) => !v)}
-          sx={{ whiteSpace: "nowrap", flexShrink: 0 }}
+          sx={{ ...responsiveWidth(), whiteSpace: "nowrap", flexShrink: 0 }}
         >
           Filters
         </Button>
@@ -497,21 +492,16 @@ export function ProductTable() {
           size="small"
           startIcon={<AddIcon />}
           onClick={() => navigate("/products/new")}
-          sx={{ whiteSpace: "nowrap", flexShrink: 0 }}
+          sx={{ ...responsiveWidth(), whiteSpace: "nowrap", flexShrink: 0 }}
         >
           Add Product
         </Button>
-      </Stack>
+      </ResponsiveStack>
 
       {/* Filter panel */}
       {showFilters && (
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={1.5}
-          mb={2}
-          flexWrap="wrap"
-        >
-          <FormControl size="small" sx={{ minWidth: 160 }}>
+        <ResponsiveStack spacing={1.5} mb={2} flexWrap="wrap">
+          <FormControl size="small" sx={responsiveWidth(160)}>
             <InputLabel>Category</InputLabel>
             <Select
               value={categoryId}
@@ -527,7 +517,7 @@ export function ProductTable() {
             </Select>
           </FormControl>
 
-          <FormControl size="small" sx={{ minWidth: 140 }}>
+          <FormControl size="small" sx={responsiveWidth(140)}>
             <InputLabel>Dosage form</InputLabel>
             <Select
               value={dosageForm}
@@ -560,8 +550,9 @@ export function ProductTable() {
               />
             }
             label={<Typography variant="body2">Show inactive</Typography>}
+            sx={{ alignSelf: { xs: "flex-start", sm: "center" } }}
           />
-        </Stack>
+        </ResponsiveStack>
       )}
 
       {/* Data grid */}

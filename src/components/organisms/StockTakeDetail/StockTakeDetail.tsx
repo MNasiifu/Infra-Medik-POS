@@ -18,6 +18,7 @@ import {
 import { useStockBatches } from '@/hooks/inventory/useInventory'
 import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal'
 import { formatDate }      from '@/lib/formatters'
+import { ResponsiveStack, responsiveWidth } from '@/components/molecules/ResponsiveStack'
 import type { StockTakeItemWithDetails } from '@/services/stockTakeService'
 import type { StockTakeStatus }          from '@/types/database.types'
 
@@ -107,7 +108,7 @@ export function StockTakeDetail() {
       {isEditable && (
         <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2 }}>
           <Typography variant="subtitle2" mb={1.5}>Add batch to count</Typography>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems="flex-start">
+          <ResponsiveStack spacing={1.5}>
             <Autocomplete
               options={allBatches}
               getOptionLabel={(b) =>
@@ -118,7 +119,7 @@ export function StockTakeDetail() {
               renderInput={(params) => (
                 <TextField {...params} label="Search batch" size="small" />
               )}
-              sx={{ flex: 1, minWidth: 300 }}
+              sx={{ ...responsiveWidth(300), flex: 1 }}
               isOptionEqualToValue={(opt, val) => opt.id === val.id}
               noOptionsText="No batches available"
             />
@@ -127,10 +128,11 @@ export function StockTakeDetail() {
               size="small"
               onClick={handleAddItem}
               disabled={!selectedBatchId || addItem.isPending}
+              sx={responsiveWidth()}
             >
               Add
             </Button>
-          </Stack>
+          </ResponsiveStack>
         </Paper>
       )}
 

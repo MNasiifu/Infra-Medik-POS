@@ -31,6 +31,7 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { useNavigate } from "react-router-dom";
 
 import { SearchTextField } from "@/components/molecules/SearchTextField";
+import { ResponsiveStack, responsiveWidth } from "@/components/molecules/ResponsiveStack";
 import { useProductStock } from "@/hooks/inventory/useInventory";
 import { useProductBatches } from "@/hooks/inventory/useInventory";
 import { useCategories, useSuppliers } from "@/hooks/shared/useReferenceData";
@@ -399,38 +400,28 @@ export function ProductStockTable() {
       </Box>
 
       {/* Toolbar */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={1.5}
-        mb={2}
-        alignItems="flex-start"
-      >
+      <ResponsiveStack spacing={1.5} mb={2}>
         <SearchTextField
           placeholder="Search by product name or generic name…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1, maxWidth: { sm: 380 } }}
+          sx={{ ...responsiveWidth(), flex: 1, maxWidth: { sm: 380 } }}
         />
         <Button
           variant={showFilters ? "contained" : "outlined"}
           size="small"
           startIcon={<FilterListIcon />}
           onClick={() => setShowFilters((v) => !v)}
-          sx={{ whiteSpace: "nowrap", flexShrink: 0 }}
+          sx={{ ...responsiveWidth(), whiteSpace: "nowrap", flexShrink: 0 }}
         >
           Filters
         </Button>
-      </Stack>
+      </ResponsiveStack>
 
       {/* Filter panel */}
       {showFilters && (
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={1.5}
-          mb={2}
-          flexWrap="wrap"
-        >
-          <FormControl size="small" sx={{ minWidth: 160 }}>
+        <ResponsiveStack spacing={1.5} mb={2} flexWrap="wrap">
+          <FormControl size="small" sx={responsiveWidth(160)}>
             <InputLabel>Category</InputLabel>
             <Select
               value={categoryId}
@@ -446,7 +437,7 @@ export function ProductStockTable() {
             </Select>
           </FormControl>
 
-          <FormControl size="small" sx={{ minWidth: 160 }}>
+          <FormControl size="small" sx={responsiveWidth(160)}>
             <InputLabel>Supplier</InputLabel>
             <Select
               value={supplierId}
@@ -473,7 +464,7 @@ export function ProductStockTable() {
             }
             size="small"
             placeholder="e.g., 10"
-            sx={{ minWidth: 140 }}
+            sx={{ ...responsiveWidth(140), minWidth: { sm: 140 } }}
             helperText="Leave empty to disable"
           />
 
@@ -485,8 +476,9 @@ export function ProductStockTable() {
               />
             }
             label="Show Out of Stock"
+            sx={{ alignSelf: { xs: "flex-start", sm: "center" } }}
           />
-        </Stack>
+        </ResponsiveStack>
       )}
 
       {/* DataGrid with virtual scrolling */}

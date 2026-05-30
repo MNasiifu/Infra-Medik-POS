@@ -108,22 +108,40 @@ export function StockReportPage() {
 
   return (
     <DashboardTemplate>
-      <Box display="flex" alignItems="center" gap={1.5} mb={3}>
-        <Tooltip title="Back to reports" arrow>
-          <IconButton size="small" onClick={() => navigate('/reports')}><ArrowBackIcon /></IconButton>
-        </Tooltip>
-        <Box flex={1}>
-          <Typography variant="h5" fontWeight={700}>Stock Valuation</Typography>
-          <Typography variant="body2" color="text.secondary">Current inventory value by product and batch.</Typography>
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        gap={{ xs: 1.5, sm: 1.5 }}
+        mb={3}
+      >
+        {/* Mobile: Arrow Back Icon + Title in one row; Desktop: Icon only */}
+        <Box display="flex" alignItems="center" gap={1} width={{ xs: '100%', sm: 'auto' }}>
+          <Tooltip title="Back to reports" arrow>
+            <IconButton size="small" onClick={() => navigate('/reports')} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}><ArrowBackIcon /></IconButton>
+          </Tooltip>
+          <Typography variant="h5" fontWeight={700} sx={{ display: { xs: 'block', sm: 'none' } }}>
+            Stock Valuation
+          </Typography>
         </Box>
-        <Stack direction="row" spacing={1}>
+
+        {/* Desktop: Title + Subtitle; Mobile: Subtitle only */}
+        <Box flex={{ sm: 1 }} width={{ xs: '100%', sm: 'auto' }}>
+          <Typography variant="h5" fontWeight={700} sx={{ display: { xs: 'none', sm: 'block' } }}>
+            Stock Valuation
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Current inventory value by product and batch.
+          </Typography>
+        </Box>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} width={{ xs: '100%', sm: 'auto' }}>
           <Tooltip title="Refresh" arrow>
-            <IconButton size="small" onClick={() => refetch()} disabled={isLoading}>
+            <IconButton size="small" onClick={() => refetch()} disabled={isLoading} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}>
               {isLoading ? <CircularProgress size={18} /> : <RefreshIcon />}
             </IconButton>
           </Tooltip>
-          <Button size="small" variant="outlined" startIcon={<TableChartIcon />} onClick={handleExportExcel} disabled={rows.length === 0}>Excel</Button>
-          <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={handlePrint} disabled={rows.length === 0}>PDF</Button>
+          <Button size="small" variant="outlined" startIcon={<TableChartIcon />} onClick={handleExportExcel} disabled={rows.length === 0} sx={{ width: { xs: '100%', sm: 'auto' } }}>Excel</Button>
+          <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={handlePrint} disabled={rows.length === 0} sx={{ width: { xs: '100%', sm: 'auto' } }}>PDF</Button>
         </Stack>
       </Box>
 

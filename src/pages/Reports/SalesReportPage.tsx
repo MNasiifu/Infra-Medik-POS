@@ -313,27 +313,42 @@ export function SalesReportPage() {
 
   return (
     <DashboardTemplate>
-      <Box display="flex" alignItems="center" gap={1.5} mb={3}>
-        <Tooltip title="Back to reports" arrow>
-          <IconButton size="small" onClick={() => navigate("/reports")}>
-            <ArrowBackIcon />
-          </IconButton>
-        </Tooltip>
-        <Box flex={1}>
-          <Typography variant="h5" fontWeight={700}>
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        gap={{ xs: 1.5, sm: 1.5 }}
+        mb={3}
+      >
+        {/* Mobile: Arrow Back Icon + Title in one row; Desktop: Icon only */}
+        <Box display="flex" alignItems="center" gap={1} width={{ xs: '100%', sm: 'auto' }}>
+          <Tooltip title="Back to reports" arrow>
+            <IconButton size="small" onClick={() => navigate("/reports")} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}>
+              <ArrowBackIcon />
+            </IconButton>
+          </Tooltip>
+          <Typography variant="h5" fontWeight={700} sx={{ display: { xs: 'block', sm: 'none' } }}>
+            Sales Report
+          </Typography>
+        </Box>
+
+        {/* Desktop: Title + Subtitle; Mobile: Subtitle only */}
+        <Box flex={{ sm: 1 }} width={{ xs: '100%', sm: 'auto' }}>
+          <Typography variant="h5" fontWeight={700} sx={{ display: { xs: 'none', sm: 'block' } }}>
             Sales Report
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Full transaction list with VAT and payment breakdown.
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} width={{ xs: '100%', sm: 'auto' }}>
           <Button
             size="small"
             variant="outlined"
             startIcon={<TableChartIcon />}
             onClick={handleExportExcel}
             disabled={rows.length === 0}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             Excel
           </Button>
@@ -343,6 +358,7 @@ export function SalesReportPage() {
             startIcon={<PrintIcon />}
             onClick={handlePrint}
             disabled={rows.length === 0}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             PDF
           </Button>
@@ -351,35 +367,38 @@ export function SalesReportPage() {
 
       {/* Filters */}
       <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mb: 2.5 }}>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={1.5}
-          alignItems="flex-end"
-          flexWrap="wrap"
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 1.5,
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' , md: '1fr 1fr 1fr 1fr 1fr' },
+            justifyContent: 'center',
+            alignContent: 'center',
+          }}
         >
           <TextField
             label="From"
             type="date"
             size="small"
+            fullWidth
             value={filters.dateFrom}
             onChange={(e) =>
               setFilters((f) => ({ ...f, dateFrom: e.target.value }))
             }
             InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 160 }}
           />
           <TextField
             label="To"
             type="date"
             size="small"
+            fullWidth
             value={filters.dateTo}
             onChange={(e) =>
               setFilters((f) => ({ ...f, dateTo: e.target.value }))
             }
             InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 160 }}
           />
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+          <FormControl size="small" fullWidth>
             <InputLabel>Teller</InputLabel>
             <Select
               value={filters.tellerId ?? ""}
@@ -396,7 +415,7 @@ export function SalesReportPage() {
               ))}
             </Select>
           </FormControl>
-          <FormControl size="small" sx={{ minWidth: 140 }}>
+          <FormControl size="small" fullWidth>
             <InputLabel>Sale type</InputLabel>
             <Select
               value={filters.saleType ?? ""}
@@ -421,6 +440,7 @@ export function SalesReportPage() {
           <Button
             variant="contained"
             size="small"
+            fullWidth
             startIcon={
               isLoading ? (
                 <CircularProgress size={14} color="inherit" />
@@ -433,7 +453,7 @@ export function SalesReportPage() {
           >
             Run report
           </Button>
-        </Stack>
+        </Box>
       </Paper>
 
       {/* Summary row */}

@@ -4,7 +4,6 @@ import {
   Button,
   Chip,
   IconButton,
-  Stack,
   Switch,
   FormControlLabel,
   Tooltip,
@@ -21,6 +20,7 @@ import { usePermissions } from '@/hooks/auth/usePermissions'
 import { CountryForm } from '@/components/organisms/CountryForm/CountryForm'
 import { DeactivateConfirmModal } from '@/components/molecules/DeactivateConfirmModal/DeactivateConfirmModal'
 import { SearchTextField } from '@/components/molecules/SearchTextField'
+import { ResponsiveStack, responsiveWidth } from '@/components/molecules/ResponsiveStack'
 import type { Country } from '@/types/database.types'
 
 export function CountryTable() {
@@ -113,12 +113,12 @@ export function CountryTable() {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
+      <ResponsiveStack spacing={1.5} mb={2}>
         <SearchTextField
           placeholder="Search countries…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1, maxWidth: { sm: 380 } }}
+          sx={{ ...responsiveWidth(), flex: 1, maxWidth: { sm: 380 } }}
         />
         <FormControlLabel
           control={
@@ -129,6 +129,7 @@ export function CountryTable() {
             />
           }
           label={<Typography variant="body2">Show inactive</Typography>}
+          sx={responsiveWidth()}
         />
         <Button
           variant="contained"
@@ -138,11 +139,11 @@ export function CountryTable() {
             setEditing(undefined)
             setDialogOpen(true)
           }}
-          sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+          sx={{ ...responsiveWidth(), whiteSpace: 'nowrap', flexShrink: 0 }}
         >
           Add country
         </Button>
-      </Stack>
+      </ResponsiveStack>
 
       <AppDataGrid rows={countries} columns={columns} loading={isLoading} pageSizeOptions={[25, 50]} />
 

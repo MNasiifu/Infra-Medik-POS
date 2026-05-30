@@ -1,4 +1,5 @@
-import { Box, Card, CardContent, Typography, Skeleton, type SxProps } from '@mui/material'
+import { Box, Button, Card, CardContent, Typography, Skeleton, type SxProps } from '@mui/material'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import type { ReactNode } from 'react'
 import type { Theme } from '@mui/material/styles'
 
@@ -11,19 +12,39 @@ interface Props {
   iconBg?:    string
   trend?:     { value: number; label?: string }
   loading?:   boolean
+  onClick?:   () => void
   sx?:        SxProps<Theme>
 }
 
 export function StatCard({
   title, value, subtitle, icon, iconColor = 'primary.main',
-  iconBg = 'primary.50', trend, loading = false, sx,
+  iconBg = 'primary.50', trend, loading = false, onClick, sx,
 }: Props) {
   const trendPositive = (trend?.value ?? 0) >= 0
 
   return (
-    <Card sx={{ height: '100%', ...sx }}>
-      <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-        <Box display="flex" alignItems="flex-start" justifyContent="space-between" gap={2}>
+    <Card
+      onClick={onClick}
+      sx={{
+        height: '100%',
+        cursor: onClick ? 'pointer' : undefined,
+        transition: 'box-shadow 0.2s, transform 0.2s',
+        '&:hover': onClick
+          ? { boxShadow: 4, transform: 'translateY(-2px)' }
+          : undefined,
+        ...sx,
+      }}
+    >
+      <CardContent
+        sx={{
+          p: 2.5,
+          '&:last-child': { pb: 2.5 },
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+        }}
+      >
+        <Box flex={1} display="flex" alignItems="flex-start" justifyContent="space-between" gap={2}>
           <Box flex={1} minWidth={0}>
             <Typography
               variant="caption"
@@ -89,6 +110,22 @@ export function StatCard({
             </Box>
           )}
         </Box>
+
+        {onClick && !loading && (
+          <Box display="flex" justifyContent="flex-end" mt={1.5}>
+            <Button
+              size="small"
+              endIcon={<ArrowForwardIcon />}
+              onClick={(e) => {
+                e.stopPropagation()
+                onClick()
+              }}
+              sx={{ textTransform: 'none' }}
+            >
+              View
+            </Button>
+          </Box>
+        )}
       </CardContent>
     </Card>
   )

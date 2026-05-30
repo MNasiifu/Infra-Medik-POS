@@ -108,14 +108,20 @@ export function PurchaseOrderTable() {
 
   return (
     <Box>
-      <Box display="flex" alignItems="center" mb={3}>
-        <Box flex={1}>
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        gap={{ xs: 1.5, sm: 0 }}
+        mb={3}
+      >
+        <Box flex={{ sm: 1 }} width={{ xs: '100%', sm: 'auto' }}>
           <Typography variant="h5" fontWeight={700}>Purchase Orders</Typography>
           <Typography variant="body2" color="text.secondary">
             Create and track purchase orders to suppliers.
           </Typography>
         </Box>
-        <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => setFormOpen(true)}>
+        <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => setFormOpen(true)} sx={{ width: { xs: '100%', sm: 'auto' } }}>
           New PO
         </Button>
       </Box>

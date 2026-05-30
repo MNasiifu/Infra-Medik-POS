@@ -63,6 +63,7 @@ export function InventoryOverview() {
             iconColor="warning.main"
             iconBg="warning.50"
             loading={isLoading}
+            onClick={() => navigate('/inventory/product-stock')}
           />
         </Grid>
         <Grid item xs={6} sm={4} md={3}>
@@ -74,6 +75,7 @@ export function InventoryOverview() {
             iconColor="warning.main"
             iconBg="warning.50"
             loading={isLoading}
+            onClick={() => navigate('/reports/expiry')}
           />
         </Grid>
         <Grid item xs={6} sm={4} md={3}>
@@ -85,6 +87,7 @@ export function InventoryOverview() {
             iconColor="error.main"
             iconBg="error.50"
             loading={isLoading}
+            onClick={() => navigate('/reports/expiry')}
           />
         </Grid>
         <Grid item xs={6} sm={4} md={3}>
@@ -96,6 +99,7 @@ export function InventoryOverview() {
             iconColor="error.main"
             iconBg="error.50"
             loading={isLoading}
+            onClick={() => navigate('/inventory/product-stock')}
           />
         </Grid>
         <Grid item xs={6} sm={4} md={3}>

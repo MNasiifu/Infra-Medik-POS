@@ -8,6 +8,7 @@ import HourglassTopIcon    from '@mui/icons-material/HourglassTop'
 import { BarChart }        from '@mui/x-charts/BarChart'
 import { PieChart }        from '@mui/x-charts/PieChart'
 
+import { useNavigate } from 'react-router-dom'
 import { DashboardTemplate } from '@/components/templates/DashboardTemplate/DashboardTemplate'
 import { StatCard }          from '@/components/molecules/StatCard/StatCard'
 import { useDashboardKPIs, useTellerSummary } from '@/hooks/dashboard/useDashboard'
@@ -50,6 +51,7 @@ export function DashboardPage() {
 // ─── Admin / Manager full dashboard ──────────────────────────────────────────
 
 function ManagerDashboard() {
+  const navigate = useNavigate()
   const { data: kpis, isLoading, isError } = useDashboardKPIs()
 
   if (isError) {
@@ -105,6 +107,7 @@ function ManagerDashboard() {
             iconBg="warning.50"
             iconColor="warning.main"
             loading={isLoading}
+            onClick={() => navigate('/inventory/product-stock')}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
@@ -116,6 +119,7 @@ function ManagerDashboard() {
             iconBg="error.50"
             iconColor="error.main"
             loading={isLoading}
+            onClick={() => navigate('/inventory/product-stock')}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
@@ -127,6 +131,7 @@ function ManagerDashboard() {
             iconBg="warning.50"
             iconColor="warning.dark"
             loading={isLoading}
+            onClick={() => navigate('/reports/expiry')}
           />
         </Grid>
       </Grid>

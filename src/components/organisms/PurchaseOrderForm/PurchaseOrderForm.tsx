@@ -10,6 +10,7 @@ import AddIcon    from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 import { FormSelectField } from '@/components/molecules/FormField/FormField'
+import { ResponsiveStack, responsiveWidth } from '@/components/molecules/ResponsiveStack'
 import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal/DeleteConfirmationModal'
 import { useSuppliers }    from '@/hooks/shared/useReferenceData'
 import { useProducts }     from '@/hooks/products/useProducts'
@@ -154,7 +155,7 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
           {/* Add item */}
           <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
             <Typography variant="subtitle2" mb={1.5}>Add line item</Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems="flex-start">
+            <ResponsiveStack spacing={1.5}>
               <Autocomplete
                 options={products}
                 getOptionLabel={(p) => p.name}
@@ -163,7 +164,7 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
                 renderInput={(params) => (
                   <TextField {...params} label="Product" size="small" />
                 )}
-                sx={{ flex: 1, minWidth: 200 }}
+                sx={{ ...responsiveWidth(200), flex: 1 }}
                 isOptionEqualToValue={(a, b) => a.id === b.id}
                 noOptionsText="No products"
               />
@@ -173,7 +174,7 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
                 value={unitId}
                 onChange={(e) => setUnitId(e.target.value)}
                 size="small"
-                sx={{ minWidth: 120 }}
+                sx={responsiveWidth(120)}
                 disabled={!selectedProduct}
               >
                 {((selectedProduct as any)?.product_units ?? []).map((u: any) => (
@@ -186,7 +187,7 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
                 value={qty}
                 onChange={(e) => setQty(e.target.value)}
                 size="small"
-                sx={{ width: 80 }}
+                sx={responsiveWidth(80)}
               />
               <TextField
                 label="Cost/Unit"
@@ -194,13 +195,14 @@ export function PurchaseOrderForm({ open, onClose }: Props) {
                 value={cost}
                 onChange={(e) => setCost(e.target.value)}
                 size="small"
-                sx={{ width: 110 }}
+                sx={responsiveWidth(110)}
               />
               <Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={handleAddItem}
-                disabled={!selectedProduct || !unitId || !qty || !cost}>
+                disabled={!selectedProduct || !unitId || !qty || !cost}
+                sx={responsiveWidth()}>
                 Add
               </Button>
-            </Stack>
+            </ResponsiveStack>
           </Paper>
 
           {/* Items table */}

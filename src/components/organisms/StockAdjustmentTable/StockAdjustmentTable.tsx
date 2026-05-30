@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import {
   Box, Chip, MenuItem, Typography,
-  Stack, Button, FormControl,
+  Button, FormControl,
   InputLabel, Select,
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
@@ -10,6 +10,7 @@ import AddIcon    from '@mui/icons-material/Add'
 
 import { StockAdjustmentForm }   from '@/components/organisms/StockAdjustmentForm/StockAdjustmentForm'
 import { SearchTextField }       from '@/components/molecules/SearchTextField'
+import { ResponsiveStack, responsiveWidth } from '@/components/molecules/ResponsiveStack'
 import { useStockAdjustments }   from '@/hooks/inventory/useInventory'
 import { formatDate } from '@/lib/formatters'
 import { ADJUSTMENT_LABELS }     from '@/lib/zod-schemas/inventory.schemas'
@@ -110,8 +111,14 @@ export function StockAdjustmentTable() {
   return (
     <Box>
       {/* Header */}
-      <Box display="flex" alignItems="center" mb={3}>
-        <Box flex={1}>
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        gap={{ xs: 1.5, sm: 0 }}
+        mb={3}
+      >
+        <Box flex={{ sm: 1 }} width={{ xs: '100%', sm: 'auto' }}>
           <Typography variant="h5" fontWeight={700}>Stock Adjustments</Typography>
           <Typography variant="body2" color="text.secondary">
             History of all stock quantity adjustments.
@@ -122,20 +129,21 @@ export function StockAdjustmentTable() {
           size="small"
           startIcon={<AddIcon />}
           onClick={() => setFormOpen(true)}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
         >
           New Adjustment
         </Button>
       </Box>
 
       {/* Toolbar */}
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
+      <ResponsiveStack spacing={1.5} mb={2}>
         <SearchTextField
           placeholder="Search by product, batch, reason…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1, maxWidth: { sm: 380 } }}
+          sx={{ ...responsiveWidth(), flex: 1, maxWidth: { sm: 380 } }}
         />
-        <FormControl size="small" sx={{ minWidth: 160 }}>
+        <FormControl size="small" sx={responsiveWidth(160)}>
           <InputLabel>Type</InputLabel>
           <Select
             value={typeFilter}
@@ -148,7 +156,7 @@ export function StockAdjustmentTable() {
             ))}
           </Select>
         </FormControl>
-      </Stack>
+      </ResponsiveStack>
 
       {/* Data grid */}
       <AppDataGrid

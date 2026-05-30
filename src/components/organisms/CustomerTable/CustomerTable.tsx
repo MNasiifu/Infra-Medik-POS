@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import {
-  Box, Button, Chip, IconButton, Stack,
+  Box, Button, Chip, IconButton,
   Switch, FormControlLabel, Tooltip, Typography,
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
@@ -16,6 +16,7 @@ import { useCustomers }                                           from '@/hooks/
 import { useDeleteCustomer, useToggleCustomerActive }             from '@/hooks/customers/useCustomerMutations'
 import { CustomerForm }                                           from '@/components/organisms/CustomerForm/CustomerForm'
 import { SearchTextField }                                        from '@/components/molecules/SearchTextField'
+import { ResponsiveStack, responsiveWidth }                        from '@/components/molecules/ResponsiveStack'
 import { formatDate }                                             from '@/lib/formatters'
 import type { Customer } from '@/types/database.types'
 
@@ -128,27 +129,28 @@ export function CustomerTable() {
   return (
     <Box>
       {/* Toolbar */}
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
+      <ResponsiveStack spacing={1.5} mb={2}>
         <SearchTextField
           placeholder="Search by name, phone, or email…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1, maxWidth: { sm: 380 } }}
+          sx={{ ...responsiveWidth(), flex: 1, maxWidth: { sm: 380 } }}
         />
         <FormControlLabel
           control={<Switch checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} size="small" />}
           label={<Typography variant="body2">Show inactive</Typography>}
+          sx={responsiveWidth()}
         />
         <Button
           variant="contained"
           size="small"
           startIcon={<AddIcon />}
           onClick={() => { setEditing(undefined); setDialogOpen(true) }}
-          sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+          sx={{ ...responsiveWidth(), whiteSpace: 'nowrap', flexShrink: 0 }}
         >
           Add customer
         </Button>
-      </Stack>
+      </ResponsiveStack>
 
       <AppDataGrid
         rows={customers}

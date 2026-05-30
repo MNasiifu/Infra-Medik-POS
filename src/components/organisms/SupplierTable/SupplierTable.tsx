@@ -4,7 +4,6 @@ import {
   Button,
   Chip,
   IconButton,
-  Stack,
   Switch,
   FormControlLabel,
   Tooltip,
@@ -21,6 +20,7 @@ import { usePermissions } from '@/hooks/auth/usePermissions'
 import { SupplierForm } from '@/components/organisms/SupplierForm/SupplierForm'
 import { DeactivateConfirmModal } from '@/components/molecules/DeactivateConfirmModal/DeactivateConfirmModal'
 import { SearchTextField } from '@/components/molecules/SearchTextField'
+import { ResponsiveStack, responsiveWidth } from '@/components/molecules/ResponsiveStack'
 import { formatDate } from '@/lib/formatters'
 import type { Supplier } from '@/types/database.types'
 
@@ -138,12 +138,12 @@ export function SupplierTable() {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
+      <ResponsiveStack spacing={1.5} mb={2}>
         <SearchTextField
           placeholder="Search suppliers…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1, maxWidth: { sm: 380 } }}
+          sx={{ ...responsiveWidth(), flex: 1, maxWidth: { sm: 380 } }}
         />
         <FormControlLabel
           control={
@@ -154,6 +154,7 @@ export function SupplierTable() {
             />
           }
           label={<Typography variant="body2">Show inactive</Typography>}
+          sx={responsiveWidth()}
         />
         <Button
           variant="contained"
@@ -163,11 +164,11 @@ export function SupplierTable() {
             setEditing(undefined)
             setDialogOpen(true)
           }}
-          sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+          sx={{ ...responsiveWidth(), whiteSpace: 'nowrap', flexShrink: 0 }}
         >
           Add supplier
         </Button>
-      </Stack>
+      </ResponsiveStack>
 
       <AppDataGrid rows={suppliers} columns={columns} loading={isLoading} pageSizeOptions={[25, 50]} />
 

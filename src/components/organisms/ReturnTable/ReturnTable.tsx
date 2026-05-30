@@ -2,11 +2,12 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Box, Button, Chip, FormControl, IconButton,
-  InputLabel, MenuItem, Select, Stack, Tooltip, Typography,
+  InputLabel, MenuItem, Select, Tooltip, Typography,
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import { SearchTextField } from '@/components/molecules/SearchTextField'
+import { ResponsiveStack, responsiveWidth } from '@/components/molecules/ResponsiveStack'
 import AddIcon      from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 
@@ -137,14 +138,14 @@ export function ReturnTable({ onNewReturn }: Props) {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
+      <ResponsiveStack spacing={1.5} mb={2}>
         <SearchTextField
           placeholder="Search by return #, sale #, or customer…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1, maxWidth: { sm: 360 } }}
+          sx={{ ...responsiveWidth(), flex: 1, maxWidth: { sm: 360 } }}
         />
-        <FormControl size="small" sx={{ minWidth: 150 }}>
+        <FormControl size="small" sx={responsiveWidth(150)}>
           <InputLabel>Status</InputLabel>
           <Select
             value={status}
@@ -162,11 +163,11 @@ export function ReturnTable({ onNewReturn }: Props) {
           size="small"
           startIcon={<AddIcon />}
           onClick={onNewReturn}
-          sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+          sx={{ ...responsiveWidth(), whiteSpace: 'nowrap', flexShrink: 0 }}
         >
           New return
         </Button>
-      </Stack>
+      </ResponsiveStack>
 
       <AppDataGrid
         rows={returns}

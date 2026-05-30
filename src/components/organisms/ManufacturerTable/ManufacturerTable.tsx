@@ -4,7 +4,6 @@ import {
   Button,
   Chip,
   IconButton,
-  Stack,
   Switch,
   FormControlLabel,
   Tooltip,
@@ -21,6 +20,7 @@ import { usePermissions } from '@/hooks/auth/usePermissions'
 import { ManufacturerForm } from '@/components/organisms/ManufacturerForm/ManufacturerForm'
 import { DeactivateConfirmModal } from '@/components/molecules/DeactivateConfirmModal/DeactivateConfirmModal'
 import { SearchTextField } from '@/components/molecules/SearchTextField'
+import { ResponsiveStack, responsiveWidth } from '@/components/molecules/ResponsiveStack'
 import { formatDate } from '@/lib/formatters'
 import type { Manufacturer } from '@/types/database.types'
 import type { ManufacturerWithCountry } from '@/services/manufacturerService'
@@ -142,12 +142,12 @@ export function ManufacturerTable() {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
+      <ResponsiveStack spacing={1.5} mb={2}>
         <SearchTextField
           placeholder="Search manufacturers…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1, maxWidth: { sm: 380 } }}
+          sx={{ ...responsiveWidth(), flex: 1, maxWidth: { sm: 380 } }}
         />
         <FormControlLabel
           control={
@@ -158,6 +158,7 @@ export function ManufacturerTable() {
             />
           }
           label={<Typography variant="body2">Show inactive</Typography>}
+          sx={responsiveWidth()}
         />
         <Button
           variant="contained"
@@ -167,11 +168,11 @@ export function ManufacturerTable() {
             setEditing(undefined)
             setDialogOpen(true)
           }}
-          sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+          sx={{ ...responsiveWidth(), whiteSpace: 'nowrap', flexShrink: 0 }}
         >
           Add manufacturer
         </Button>
-      </Stack>
+      </ResponsiveStack>
 
       <AppDataGrid
         rows={manufacturers}

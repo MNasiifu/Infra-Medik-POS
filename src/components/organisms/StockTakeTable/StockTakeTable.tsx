@@ -125,14 +125,21 @@ export function StockTakeTable() {
 
   return (
     <Box>
-      <Box display="flex" alignItems="center" mb={3}>
-        <Box flex={1}>
+      {/* Header */}
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', md: 'row' }}
+        alignItems={{ xs: 'stretch', md: 'center' }}
+        gap={{ xs: 1.5, md: 0 }}
+        mb={3}
+      >
+        <Box flex={{ md: 1 }} width={{ xs: '100%', md: 'auto' }}>
           <Typography variant="h5" fontWeight={700}>Stock Takes</Typography>
           <Typography variant="body2" color="text.secondary">
             Count physical inventory and reconcile with system quantities.
           </Typography>
         </Box>
-        <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+        <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)} sx={{ width: { xs: '100%', md: 'auto' } }}>
           New Stock Take
         </Button>
       </Box>

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Alert, Box, Button, CircularProgress, Divider, IconButton, Paper,
-  Stack, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography,
+  Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography,
 } from '@mui/material'
 import { BarChart } from '@mui/x-charts/BarChart'
 import ArrowBackIcon  from '@mui/icons-material/ArrowBack'
@@ -96,44 +96,76 @@ export function VatReportPage() {
 
   return (
     <DashboardTemplate>
-      <Box display="flex" alignItems="center" gap={1.5} mb={3}>
-        <Tooltip title="Back to reports" arrow>
-          <IconButton size="small" onClick={() => navigate('/reports')}><ArrowBackIcon /></IconButton>
-        </Tooltip>
-        <Box flex={1}>
-          <Typography variant="h5" fontWeight={700}>VAT Report</Typography>
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        gap={{ xs: 1.5, sm: 1.5 }}
+        mb={3}
+      >
+        {/* Mobile: Arrow Back Icon + Title in one row; Desktop: Icon only */}
+        <Box display="flex" alignItems="center" gap={1} width={{ xs: '100%', sm: 'auto' }}>
+          <Tooltip title="Back to reports" arrow>
+            <IconButton size="small" onClick={() => navigate('/reports')} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}><ArrowBackIcon /></IconButton>
+          </Tooltip>
+          <Typography variant="h5" fontWeight={700} sx={{ display: { xs: 'block', sm: 'none' } }}>
+            VAT Report
+          </Typography>
+        </Box>
+
+        {/* Desktop: Title + Subtitle; Mobile: Subtitle only */}
+        <Box flex={{ sm: 1 }} width={{ xs: '100%', sm: 'auto' }}>
+          <Typography variant="h5" fontWeight={700} sx={{ display: { xs: 'none', sm: 'block' } }}>
+            VAT Report
+          </Typography>
           <Typography variant="body2" color="text.secondary">
             Total VAT collected with daily breakdown
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1}>
-          <Button size="small" variant="outlined" startIcon={<TableChartIcon />} onClick={handleExportExcel} disabled={!data}>Excel</Button>
-          <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={handlePrint} disabled={!data}>PDF</Button>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} width={{ xs: '100%', sm: 'auto' }}>
+          <Button size="small" variant="outlined" startIcon={<TableChartIcon />} onClick={handleExportExcel} disabled={!data} sx={{ width: { xs: '100%', sm: 'auto' } }}>Excel</Button>
+          <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={handlePrint} disabled={!data} sx={{ width: { xs: '100%', sm: 'auto' } }}>PDF</Button>
         </Stack>
       </Box>
 
       {/* Filters */}
       <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mb: 2.5 }}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems="flex-end">
-          <Box
-            component="input" type="date"
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 1.5,
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' },
+          }}
+        >
+          <TextField
+            label="From"
+            type="date"
+            size="small"
+            fullWidth
             value={filters.dateFrom}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters((f) => ({ ...f, dateFrom: e.target.value }))}
-            style={{ padding: '8px 10px', borderRadius: 4, border: '1px solid #ccc', fontSize: 14 }}
+            InputLabelProps={{ shrink: true }}
           />
-          <Typography variant="body2" color="text.secondary">to</Typography>
-          <Box
-            component="input" type="date"
+          <TextField
+            label="To"
+            type="date"
+            size="small"
+            fullWidth
             value={filters.dateTo}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters((f) => ({ ...f, dateTo: e.target.value }))}
-            style={{ padding: '8px 10px', borderRadius: 4, border: '1px solid #ccc', fontSize: 14 }}
+            InputLabelProps={{ shrink: true }}
           />
-          <Button variant="contained" size="small"
+          <Button
+            variant="contained"
+            size="small"
+            fullWidth
             startIcon={isLoading ? <CircularProgress size={14} color="inherit" /> : <PlayArrowIcon />}
-            onClick={handleRun} disabled={isLoading}>
+            onClick={handleRun}
+            disabled={isLoading}
+          >
             Run report
           </Button>
-        </Stack>
+        </Box>
       </Paper>
 
       {isError && <Alert severity="error" sx={{ mb: 2 }}>Failed to load report. Make sure get_vat_report RPC is deployed.</Alert>}

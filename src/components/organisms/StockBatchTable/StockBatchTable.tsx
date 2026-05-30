@@ -1,12 +1,13 @@
 import { useState, useMemo, useCallback } from 'react'
 import {
   Box, Chip, IconButton, Tooltip, MenuItem,
-  Stack, Button, Typography,
+  Button, Typography,
   Select, FormControl, InputLabel, Switch, FormControlLabel,
 } from '@mui/material'
 import { type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { AppDataGrid } from '@/components/molecules/AppDataGrid'
 import { SearchTextField } from '@/components/molecules/SearchTextField'
+import { ResponsiveStack, responsiveWidth } from '@/components/molecules/ResponsiveStack'
 import EditIcon        from '@mui/icons-material/Edit'
 import FilterListIcon  from '@mui/icons-material/FilterList'
 
@@ -163,28 +164,28 @@ export function StockBatchTable() {
       </Box>
 
       {/* Toolbar */}
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} alignItems="flex-start">
+      <ResponsiveStack spacing={1.5} mb={2}>
         <SearchTextField
           placeholder="Search by product, batch number…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1, maxWidth: { sm: 380 } }}
+          sx={{ ...responsiveWidth(), flex: 1, maxWidth: { sm: 380 } }}
         />
         <Button
           variant={showFilters ? 'contained' : 'outlined'}
           size="small"
           startIcon={<FilterListIcon />}
           onClick={() => setShowFilters((v) => !v)}
-          sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+          sx={{ ...responsiveWidth(), whiteSpace: 'nowrap', flexShrink: 0 }}
         >
           Filters
         </Button>
-      </Stack>
+      </ResponsiveStack>
 
       {/* Filter panel */}
       {showFilters && (
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} flexWrap="wrap">
-          <FormControl size="small" sx={{ minWidth: 160 }}>
+        <ResponsiveStack spacing={1.5} mb={2} flexWrap="wrap">
+          <FormControl size="small" sx={responsiveWidth(160)}>
             <InputLabel>Expiry Status</InputLabel>
             <Select
               value={expiryStatus}
@@ -198,7 +199,7 @@ export function StockBatchTable() {
             </Select>
           </FormControl>
 
-          <FormControl size="small" sx={{ minWidth: 160 }}>
+          <FormControl size="small" sx={responsiveWidth(160)}>
             <InputLabel>Supplier</InputLabel>
             <Select
               value={supplierId}
@@ -221,8 +222,9 @@ export function StockBatchTable() {
               />
             }
             label={<Typography variant="body2">Show depleted</Typography>}
+            sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}
           />
-        </Stack>
+        </ResponsiveStack>
       )}
 
       {/* Data grid */}
